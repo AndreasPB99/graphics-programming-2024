@@ -2,7 +2,9 @@
 
 #include <ituGL/application/Application.h>
 
-// (todo) 01.1: Include the libraries you need
+#include <ituGL/geometry/ElementBufferObject.h>
+#include <ituGL/geometry/VertexBufferObject.h>
+#include <ituGL/geometry/VertexArrayObject.h>
 
 
 class TerrainApplication : public Application
@@ -25,9 +27,8 @@ private:
 
     unsigned int m_shaderProgram;
 
-    // (todo) 01.1: Declare an VBO, VAO
-
-
-    // (todo) 01.5: Declare an EBO
+    VertexArrayObject m_vao;
+    VertexBufferObject m_vbo;
+    ElementBufferObject m_ebo;
 
 };

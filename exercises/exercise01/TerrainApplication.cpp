@@ -1,7 +1,6 @@
 #include "TerrainApplication.h"
-
-// (todo) 01.1: Include the libraries you need
-
+#include <ituGL/geometry/VertexAttribute.h>
+#include <vector>
 #include <cmath>
 #include <iostream>
 
@@ -42,21 +41,64 @@ void TerrainApplication::Initialize()
     // Build shaders and store in m_shaderProgram
     BuildShaders();
 
-    // (todo) 01.1: Create containers for the vertex position
+
+    std::vector<Vector3> vertices;
+
+    float x_scale = 1.0f / m_gridX;
+    float y_scale = 1.0f / m_gridY;
+
+    for (int i = 0; i < m_gridX; ++i) {
+        for (int j = 0; j < m_gridY; ++j) {
+
+            float x = i * x_scale - 0.5f;
+            float y = j * y_scale - 0.5f;
+            float z = 0.0f;
+            Vector3 bottom_left = Vector3(x, y, z);
+
+            float x2 = (i + 1) * x_scale - 0.5f;
+            float y2 = j * y_scale - 0.5f;
+            float z2 = 0.0f;
+            Vector3 bottom_right = Vector3(x2, y2, z2);
+
+            float x3 = i * x_scale - 0.5f;
+            float y3 = (j + 1) * y_scale - 0.5f;
+            float z3 = 0.0f;
+            Vector3 top_left = Vector3(x3, y3, z3);
+
+            float x4 = (i + 1) * x_scale - 0.5f;
+            float y4 = (j + 1) * y_scale - 0.5f;
+            float z4 = 0.0f;
+            Vector3 top_right = Vector3(x4, y4, z4);
+            
+            // Triangle one
+            vertices.push_back(bottom_left);
+            vertices.push_back(bottom_right);
+            vertices.push_back(top_left);
+
+            // Triangle two
+            vertices.push_back(top_right);
+            vertices.push_back(bottom_right);
+            vertices.push_back(top_left);
+        }
+    }
+
+    m_vao.Bind();
+
+    m_vbo.Bind();
+    m_vbo.AllocateData<Vector3>(std::span(vertices));
 
 
-    // (todo) 01.1: Fill in vertex data
+    VertexAttribute position(Data::Type::Float, 3);
+    m_vao.SetAttribute(0, position, 0);
 
-
-    // (todo) 01.1: Initialize VAO, and VBO
 
 
     // (todo) 01.5: Initialize EBO
 
 
-    // (todo) 01.1: Unbind VAO, and VBO
-
-
+    VertexBufferObject::Unbind();
+    VertexArrayObject::Unbind();
+    //ElementBufferObject::Unbind();
     // (todo) 01.5: Unbind EBO
 
 }
@@ -78,7 +120,9 @@ void TerrainApplication::Render()
     // Set shader to be used
     glUseProgram(m_shaderProgram);
 
-    // (todo) 01.1: Draw the grid
+    m_vao.Bind();
+
+    glDrawArrays(GL_TRIANGLES, 0, 6 * m_gridX * m_gridY);
 
 }
 

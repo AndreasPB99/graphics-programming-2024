@@ -30,7 +30,7 @@ struct Vector3
 
 
 TerrainApplication::TerrainApplication()
-    : Application(1024, 1024, "Terrain demo"), m_gridX(16), m_gridY(16), m_shaderProgram(0)
+    : Application(1024, 1024, "Terrain demo"), m_gridX(32), m_gridY(32), m_shaderProgram(0)
 {
 }
 
@@ -43,56 +43,56 @@ void TerrainApplication::Initialize()
 
 
     std::vector<Vector3> vertices;
+    std::vector<unsigned int> indices;
     std::vector<Vector2> verticesTexture;
 
     float x_scale = 1.0f / m_gridX;
     float y_scale = 1.0f / m_gridY;
 
-    for (int i = 0; i < m_gridX; ++i) {
-        for (int j = 0; j < m_gridY; ++j) {
+    for (int i = 0; i <= m_gridX; ++i) {
+        float x = i * x_scale - 0.5f;
+        float y = -0.5f;
+        float z = 0.0f;
+        Vector3 bottom = Vector3(x, y, z);
 
-            float x = i * x_scale - 0.5f;
-            float y = j * y_scale - 0.5f;
+        vertices.push_back(bottom);
+        verticesTexture.push_back(Vector2(i, 0));
+    }
+
+    for (int i = 1; i <= m_gridY; ++i) {
+        for (int j = 1; j <= m_gridX; ++j) {
+            if (j == 1) {
+                float x1 = -0.5f;
+                float y1 = i * y_scale - 0.5f;
+                float z1 = 0.0f;
+                Vector3 left = Vector3(x1, y1, z1);
+
+                vertices.push_back(left);
+                verticesTexture.push_back(Vector2(j-1, i));
+            }
+
+            float x = j * x_scale - 0.5f;
+            float y = i * y_scale - 0.5f;
             float z = 0.0f;
-            Vector3 bottom_left = Vector3(x, y, z);
-
-            float x2 = (i + 1) * x_scale - 0.5f;
-            float y2 = j * y_scale - 0.5f;
-            float z2 = 0.0f;
-            Vector3 bottom_right = Vector3(x2, y2, z2);
-
-            float x3 = i * x_scale - 0.5f;
-            float y3 = (j + 1) * y_scale - 0.5f;
-            float z3 = 0.0f;
-            Vector3 top_left = Vector3(x3, y3, z3);
-
-            float x4 = (i + 1) * x_scale - 0.5f;
-            float y4 = (j + 1) * y_scale - 0.5f;
-            float z4 = 0.0f;
-            Vector3 top_right = Vector3(x4, y4, z4);
+            Vector3 right = Vector3(x, y, z);
             
-            // Triangle one
-            vertices.push_back(bottom_left);
-            vertices.push_back(bottom_right);
-            vertices.push_back(top_left);
+            vertices.push_back(right);
+            verticesTexture.push_back(Vector2(j, i));
 
-            // Triangle two
-            vertices.push_back(top_right);
-            vertices.push_back(bottom_right);
-            vertices.push_back(top_left);
+            //Triangle one
+            int bottom_left = ((i - 1) * (m_gridY + 1)) + j - 1;
+            int bottom_right = ((i - 1) * (m_gridY + 1)) + j;
+            int top_left = bottom_left + m_gridY + 1;
+            int top_right = bottom_right + m_gridY + 1;
+            indices.push_back(bottom_left);
+            indices.push_back(bottom_right);
+            indices.push_back(top_left);
 
+            //Triangle one
+            indices.push_back(bottom_right);
+            indices.push_back(top_left);
+            indices.push_back(top_right);
 
-            Vector2 tbottom_left = Vector2(0, 0);
-            Vector2 tbottom_right = Vector2(1, 0);
-            Vector2 ttop_left = Vector2(0, 1);
-            Vector2 ttop_right = Vector2(1, 1);
-            verticesTexture.push_back(tbottom_left);
-            verticesTexture.push_back(tbottom_right);
-            verticesTexture.push_back(ttop_left);
-
-            verticesTexture.push_back(ttop_right);
-            verticesTexture.push_back(tbottom_right);
-            verticesTexture.push_back(ttop_left);
         }
     }
 
@@ -104,21 +104,18 @@ void TerrainApplication::Initialize()
     m_vbo.UpdateData(std::span(verticesTexture), vertices.size() * sizeof(Vector3));
 
 
+    m_ebo.Bind();
+    m_ebo.AllocateData<unsigned int>(std::span(indices));
+
     VertexAttribute position(Data::Type::Float, 3);
     m_vao.SetAttribute(0, position, 0);
 
     VertexAttribute position2(Data::Type::Float, 2);
     m_vao.SetAttribute(1, position2, vertices.size() * sizeof(Vector3));
 
-
-
-    // (todo) 01.5: Initialize EBO
-
-
     VertexBufferObject::Unbind();
     VertexArrayObject::Unbind();
-    //ElementBufferObject::Unbind();
-    // (todo) 01.5: Unbind EBO
+    ElementBufferObject::Unbind();
 
 }
 
@@ -141,7 +138,8 @@ void TerrainApplication::Render()
 
     m_vao.Bind();
 
-    glDrawArrays(GL_TRIANGLES, 0, 6 * m_gridX * m_gridY);
+    //glDrawArrays(GL_TRIANGLES, 0, 6 * m_gridX * m_gridY);
+    glDrawElements(GL_TRIANGLES, 6 * m_gridX * m_gridY, GL_UNSIGNED_INT, 0);
 
 }
 

@@ -43,6 +43,7 @@ void TerrainApplication::Initialize()
 
 
     std::vector<Vector3> vertices;
+    std::vector<Vector2> verticesTexture;
 
     float x_scale = 1.0f / m_gridX;
     float y_scale = 1.0f / m_gridY;
@@ -79,17 +80,35 @@ void TerrainApplication::Initialize()
             vertices.push_back(top_right);
             vertices.push_back(bottom_right);
             vertices.push_back(top_left);
+
+
+            Vector2 tbottom_left = Vector2(0, 0);
+            Vector2 tbottom_right = Vector2(1, 0);
+            Vector2 ttop_left = Vector2(0, 1);
+            Vector2 ttop_right = Vector2(1, 1);
+            verticesTexture.push_back(tbottom_left);
+            verticesTexture.push_back(tbottom_right);
+            verticesTexture.push_back(ttop_left);
+
+            verticesTexture.push_back(ttop_right);
+            verticesTexture.push_back(tbottom_right);
+            verticesTexture.push_back(ttop_left);
         }
     }
 
     m_vao.Bind();
 
     m_vbo.Bind();
-    m_vbo.AllocateData<Vector3>(std::span(vertices));
+    m_vbo.AllocateData(vertices.size() * (sizeof(Vector3) + sizeof(Vector2)));
+    m_vbo.UpdateData(std::span(vertices), 0);
+    m_vbo.UpdateData(std::span(verticesTexture), vertices.size() * sizeof(Vector3));
 
 
     VertexAttribute position(Data::Type::Float, 3);
     m_vao.SetAttribute(0, position, 0);
+
+    VertexAttribute position2(Data::Type::Float, 2);
+    m_vao.SetAttribute(1, position2, vertices.size() * sizeof(Vector3));
 
 
 

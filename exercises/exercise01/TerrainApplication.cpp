@@ -27,12 +27,30 @@ struct Vector3
     }
 };
 
+
+Vector3 get_color_from_height(float z) {
+    if (z < -0.1f) {
+        return Vector3(0.0f, 0.0f, 1.0f); // Water
+    }
+    else if (z < -0.05) {
+        return Vector3(1.0f, 0.8f, 0.75f); // Sand
+    }
+    else if (z < 0.1f) {
+        return Vector3(0.06f, 0.4f, 0.1f); // Grass
+    }
+    else if (z < 0.3f) {
+        return Vector3(0.15f, 0.15f, 0.15f); // Rock
+    }
+    else {
+        return Vector3(1.0f, 1.0f, 1.0f); //snow
+    }
+}
 // (todo) 01.8: Declare an struct with the vertex format
 
 
 
 TerrainApplication::TerrainApplication()
-    : Application(1024, 1024, "Terrain demo"), m_gridX(32), m_gridY(32), m_shaderProgram(0)
+    : Application(1024, 1024, "Terrain demo"), m_gridX(64), m_gridY(64), m_shaderProgram(0)
 {
 }
 
@@ -47,6 +65,7 @@ void TerrainApplication::Initialize()
     std::vector<Vector3> vertices;
     std::vector<unsigned int> indices;
     std::vector<Vector2> verticesTexture;
+    std::vector<Vector3> colors;
 
     float x_scale = 1.0f / m_gridX;
     float y_scale = 1.0f / m_gridY;
@@ -59,6 +78,8 @@ void TerrainApplication::Initialize()
 
         vertices.push_back(bottom);
         verticesTexture.push_back(Vector2(i, 0));
+        colors.push_back(get_color_from_height(z));
+
     }
 
     for (int i = 1; i <= m_gridY; ++i) {
@@ -68,9 +89,10 @@ void TerrainApplication::Initialize()
                 float y1 = i * y_scale - 0.5f;
                 float z1 = stb_perlin_fbm_noise3(x1 * 2, y1 * 2, 0.0f, 1.9f, 0.5f, 8) * 0.5f;
                 Vector3 left = Vector3(x1, y1, z1);
-
+                
                 vertices.push_back(left);
                 verticesTexture.push_back(Vector2(j-1, i));
+                colors.push_back(get_color_from_height(z1));
             }
 
             float x = j * x_scale - 0.5f;
@@ -80,6 +102,7 @@ void TerrainApplication::Initialize()
             
             vertices.push_back(right);
             verticesTexture.push_back(Vector2(j, i));
+            colors.push_back(get_color_from_height(z));
 
             //Triangle one
             int bottom_left = ((i - 1) * (m_gridY + 1)) + j - 1;
@@ -97,13 +120,16 @@ void TerrainApplication::Initialize()
 
         }
     }
+    float vertices_offset = vertices.size() * sizeof(Vector3);
+    float texture_offset = vertices_offset + verticesTexture.size() * sizeof(Vector2);
 
     m_vao.Bind();
 
     m_vbo.Bind();
-    m_vbo.AllocateData(vertices.size() * (sizeof(Vector3) + sizeof(Vector2)));
+    m_vbo.AllocateData(vertices.size() * (sizeof(Vector3) + sizeof(Vector2) + sizeof(Vector3)));
     m_vbo.UpdateData(std::span(vertices), 0);
-    m_vbo.UpdateData(std::span(verticesTexture), vertices.size() * sizeof(Vector3));
+    m_vbo.UpdateData(std::span(verticesTexture), vertices_offset);
+    m_vbo.UpdateData(std::span(colors), texture_offset);
 
 
     m_ebo.Bind();
@@ -112,15 +138,19 @@ void TerrainApplication::Initialize()
     VertexAttribute position(Data::Type::Float, 3);
     m_vao.SetAttribute(0, position, 0);
 
-    VertexAttribute position2(Data::Type::Float, 2);
-    m_vao.SetAttribute(1, position2, vertices.size() * sizeof(Vector3));
+    VertexAttribute textureVA(Data::Type::Float, 2);
+    m_vao.SetAttribute(1, textureVA, vertices_offset);
+
+    VertexAttribute colorVA(Data::Type::Float, 3);
+    m_vao.SetAttribute(2, colorVA, texture_offset);
 
     VertexBufferObject::Unbind();
     VertexArrayObject::Unbind();
     ElementBufferObject::Unbind();
 
     // Enables wireframe
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glEnable(GL_DEPTH_TEST);
 
 }
 

@@ -45,7 +45,12 @@ Vector3 get_color_from_height(float z) {
         return Vector3(1.0f, 1.0f, 1.0f); //snow
     }
 }
-// (todo) 01.8: Declare an struct with the vertex format
+
+struct Vertex {
+    Vector3 position;
+    Vector2 texture;
+    Vector3 color;
+};
 
 
 
@@ -62,23 +67,21 @@ void TerrainApplication::Initialize()
     BuildShaders();
 
 
-    std::vector<Vector3> vertices;
+    std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<Vector2> verticesTexture;
-    std::vector<Vector3> colors;
 
     float x_scale = 1.0f / m_gridX;
     float y_scale = 1.0f / m_gridY;
 
     for (int i = 0; i <= m_gridX; ++i) {
+        Vertex vertex;
         float x = i * x_scale - 0.5f;
         float y = -0.5f;
         float z = stb_perlin_fbm_noise3(x * 2, y * 2, 0.0f, 1.9f, 0.5f, 8) * 0.5f;
-        Vector3 bottom = Vector3(x, y, z);
-
-        vertices.push_back(bottom);
-        verticesTexture.push_back(Vector2(i, 0));
-        colors.push_back(get_color_from_height(z));
+        vertex.position = Vector3(x, y, z);
+        vertex.texture = Vector2(i, 0);
+        vertex.color = get_color_from_height(z);
+        vertices.push_back(vertex);
 
     }
 
@@ -88,21 +91,16 @@ void TerrainApplication::Initialize()
                 float x1 = -0.5f;
                 float y1 = i * y_scale - 0.5f;
                 float z1 = stb_perlin_fbm_noise3(x1 * 2, y1 * 2, 0.0f, 1.9f, 0.5f, 8) * 0.5f;
-                Vector3 left = Vector3(x1, y1, z1);
-                
-                vertices.push_back(left);
-                verticesTexture.push_back(Vector2(j-1, i));
-                colors.push_back(get_color_from_height(z1));
+                Vertex vertex(Vector3(x1, y1, z1), Vector2(j - 1, i), get_color_from_height(z1));
+                vertices.push_back(vertex);
             }
 
             float x = j * x_scale - 0.5f;
             float y = i * y_scale - 0.5f;
             float z = stb_perlin_fbm_noise3(x * 2, y * 2, 0.0f, 1.9f, 0.5f, 8) * 0.5f;
-            Vector3 right = Vector3(x, y, z);
             
-            vertices.push_back(right);
-            verticesTexture.push_back(Vector2(j, i));
-            colors.push_back(get_color_from_height(z));
+            Vertex vertex(Vector3(x, y, z), Vector2(j, i), get_color_from_height(z));
+            vertices.push_back(vertex);
 
             //Triangle one
             int bottom_left = ((i - 1) * (m_gridY + 1)) + j - 1;
@@ -120,29 +118,29 @@ void TerrainApplication::Initialize()
 
         }
     }
-    float vertices_offset = vertices.size() * sizeof(Vector3);
-    float texture_offset = vertices_offset + verticesTexture.size() * sizeof(Vector2);
+
+    // Declare attributes
+    VertexAttribute positionAttribute(Data::Type::Float, 3);
+    VertexAttribute texCoordAttribute(Data::Type::Float, 2);
+    VertexAttribute colorAttribute(Data::Type::Float, 3);
+
+    float start_offset = 0;
+    float vertices_offset = start_offset + positionAttribute.GetSize();
+    float texture_offset = vertices_offset + texCoordAttribute.GetSize();
+    GLsizei stride = sizeof(Vertex);
 
     m_vao.Bind();
 
     m_vbo.Bind();
-    m_vbo.AllocateData(vertices.size() * (sizeof(Vector3) + sizeof(Vector2) + sizeof(Vector3)));
-    m_vbo.UpdateData(std::span(vertices), 0);
-    m_vbo.UpdateData(std::span(verticesTexture), vertices_offset);
-    m_vbo.UpdateData(std::span(colors), texture_offset);
+    m_vbo.AllocateData(std::span(vertices));
 
 
     m_ebo.Bind();
     m_ebo.AllocateData<unsigned int>(std::span(indices));
 
-    VertexAttribute position(Data::Type::Float, 3);
-    m_vao.SetAttribute(0, position, 0);
-
-    VertexAttribute textureVA(Data::Type::Float, 2);
-    m_vao.SetAttribute(1, textureVA, vertices_offset);
-
-    VertexAttribute colorVA(Data::Type::Float, 3);
-    m_vao.SetAttribute(2, colorVA, texture_offset);
+    m_vao.SetAttribute(0, positionAttribute, start_offset, stride);
+    m_vao.SetAttribute(1, texCoordAttribute, vertices_offset, stride);
+    m_vao.SetAttribute(2, colorAttribute, texture_offset, stride);
 
     VertexBufferObject::Unbind();
     VertexArrayObject::Unbind();

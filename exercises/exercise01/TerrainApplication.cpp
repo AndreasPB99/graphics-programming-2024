@@ -1,5 +1,7 @@
 #include "TerrainApplication.h"
 #include <ituGL/geometry/VertexAttribute.h>
+#define STB_PERLIN_IMPLEMENTATION
+#include <stb_perlin.h>
 #include <vector>
 #include <cmath>
 #include <iostream>
@@ -52,7 +54,7 @@ void TerrainApplication::Initialize()
     for (int i = 0; i <= m_gridX; ++i) {
         float x = i * x_scale - 0.5f;
         float y = -0.5f;
-        float z = 0.0f;
+        float z = stb_perlin_fbm_noise3(x * 2, y * 2, 0.0f, 1.9f, 0.5f, 8) * 0.5f;
         Vector3 bottom = Vector3(x, y, z);
 
         vertices.push_back(bottom);
@@ -64,7 +66,7 @@ void TerrainApplication::Initialize()
             if (j == 1) {
                 float x1 = -0.5f;
                 float y1 = i * y_scale - 0.5f;
-                float z1 = 0.0f;
+                float z1 = stb_perlin_fbm_noise3(x1 * 2, y1 * 2, 0.0f, 1.9f, 0.5f, 8) * 0.5f;
                 Vector3 left = Vector3(x1, y1, z1);
 
                 vertices.push_back(left);
@@ -73,7 +75,7 @@ void TerrainApplication::Initialize()
 
             float x = j * x_scale - 0.5f;
             float y = i * y_scale - 0.5f;
-            float z = 0.0f;
+            float z = stb_perlin_fbm_noise3(x * 2, y * 2, 0.0f, 1.9f, 0.5f, 8) * 0.5f;
             Vector3 right = Vector3(x, y, z);
             
             vertices.push_back(right);
@@ -116,6 +118,9 @@ void TerrainApplication::Initialize()
     VertexBufferObject::Unbind();
     VertexArrayObject::Unbind();
     ElementBufferObject::Unbind();
+
+    // Enables wireframe
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 }
 

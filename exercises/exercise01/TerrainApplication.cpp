@@ -50,6 +50,7 @@ struct Vertex {
     Vector3 position;
     Vector2 texture;
     Vector3 color;
+    Vector3 normal;
 };
 
 
@@ -81,6 +82,7 @@ void TerrainApplication::Initialize()
         vertex.position = Vector3(x, y, z);
         vertex.texture = Vector2(i, 0);
         vertex.color = get_color_from_height(z);
+        vertex.normal = Vector3(0, 0, 0);
         vertices.push_back(vertex);
 
     }
@@ -91,7 +93,7 @@ void TerrainApplication::Initialize()
                 float x1 = -0.5f;
                 float y1 = i * y_scale - 0.5f;
                 float z1 = stb_perlin_fbm_noise3(x1 * 2, y1 * 2, 0.0f, 1.9f, 0.5f, 8) * 0.5f;
-                Vertex vertex(Vector3(x1, y1, z1), Vector2(j - 1, i), get_color_from_height(z1));
+                Vertex vertex(Vector3(x1, y1, z1), Vector2(j - 1, i), get_color_from_height(z1), Vector3(0,0,0));
                 vertices.push_back(vertex);
             }
 
@@ -99,7 +101,7 @@ void TerrainApplication::Initialize()
             float y = i * y_scale - 0.5f;
             float z = stb_perlin_fbm_noise3(x * 2, y * 2, 0.0f, 1.9f, 0.5f, 8) * 0.5f;
             
-            Vertex vertex(Vector3(x, y, z), Vector2(j, i), get_color_from_height(z));
+            Vertex vertex(Vector3(x, y, z), Vector2(j, i), get_color_from_height(z), Vector3(0, 0, 0));
             vertices.push_back(vertex);
 
             //Triangle one

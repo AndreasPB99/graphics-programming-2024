@@ -14,15 +14,19 @@ struct Particle
 {
     glm::vec2 position;
     float size;
+    float birth;
+    float duration;
     // (todo) 02.X: Add more vertex attributes
  
 };
 
 // List of attributes of the particle. Must match the structure above
-const std::array<VertexAttribute, 2> s_vertexAttributes =
+const std::array<VertexAttribute, 4> s_vertexAttributes =
 {
     VertexAttribute(Data::Type::Float, 2), // position
     VertexAttribute(Data::Type::Float, 1),
+    VertexAttribute(Data::Type::Float, 1),
+     VertexAttribute(Data::Type::Float, 1),
     // (todo) 02.X: Add more vertex attributes
 
 };
@@ -30,6 +34,7 @@ const std::array<VertexAttribute, 2> s_vertexAttributes =
 
 ParticlesApplication::ParticlesApplication()
     : Application(1024, 1024, "Particles demo")
+    , m_currentTimeUniform(0)
     , m_mousePosition(0)
     , m_particleCount(0)
     , m_particleCapacity(2048)  // You can change the capacity here to have more particles
@@ -53,6 +58,8 @@ void ParticlesApplication::Initialize()
 
     // We need to enable V-sync, otherwise the framerate would be too high and spawn multiple particles in one click
     GetDevice().SetVSyncEnabled(true);
+
+    m_currentTimeUniform = m_shaderProgram.GetUniformLocation("CurrentTime");
 }
 
 void ParticlesApplication::Update()
@@ -70,7 +77,8 @@ void ParticlesApplication::Update()
         // (todo) 02.X: Compute new particle attributes here
 
         float size = RandomRange(10.0f, 40.0f);
-        EmitParticle(mousePosition, size);
+        float duration = RandomRange(1, 2);
+        EmitParticle(mousePosition, size, duration);
     }
 
     // save the mouse position (to compare next frame and obtain velocity)
@@ -86,7 +94,7 @@ void ParticlesApplication::Render()
     m_shaderProgram.Use();
 
     // (todo) 02.4: Set CurrentTime uniform
-
+    m_shaderProgram.SetUniform(m_currentTimeUniform, GetCurrentTime());
 
     // (todo) 02.6: Set Gravity uniform
 
@@ -146,12 +154,14 @@ void ParticlesApplication::InitializeShaders()
     }
 }
 
-void ParticlesApplication::EmitParticle(const glm::vec2& position, float size)
+void ParticlesApplication::EmitParticle(const glm::vec2& position, float size, float duration)
 {
     // Initialize the particle
     Particle particle;
     particle.position = position;
     particle.size = size;
+    particle.birth = GetCurrentTime();
+    particle.duration = duration;
     // (todo) 02.X: Set the value for other attributes of the particle
 
 

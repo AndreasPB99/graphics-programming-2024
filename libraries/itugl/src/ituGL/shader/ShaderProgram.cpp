@@ -82,7 +82,7 @@ void ShaderProgram::AttachShader(const Shader& shader)
     Handle shaderProgramHandle = GetHandle();
     Handle shaderHandle = shader.GetHandle();
 
-    // (todo) 02.1: Attach the shader to the shader program
+    glAttachShader(shaderProgramHandle, shaderHandle);
 
 }
 
@@ -93,7 +93,7 @@ bool ShaderProgram::Link()
 
     Handle handle = GetHandle();
 
-    // (todo) 02.1: Link the shader program
+    glLinkProgram(handle);
 
 
     return IsLinked();
@@ -145,8 +145,7 @@ ShaderProgram::Location ShaderProgram::GetUniformLocation(const char* name) cons
 
     Handle handle = GetHandle();
 
-    // (todo) 02.1: Return the location in this shader program of the uniform with that name
-    return -1;
+    return glGetUniformLocation(handle, name);
 }
 
 

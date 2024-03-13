@@ -121,12 +121,12 @@ void TexturedTerrainApplication::InitializeMaterials()
     m_terrainMaterial->SetUniformValue("Color", glm::vec4(1.0f));
     m_terrainMaterial->SetUniformValue("Heightmap", m_heightmapTexture);
     m_terrainMaterial->SetUniformValue("ColorTexture", m_dirtTexture);
-    /* m_terrainMaterial->SetUniformValue("ColorTexture2", m_grassTexture);
+    m_terrainMaterial->SetUniformValue("ColorTexture2", m_grassTexture);
     m_terrainMaterial->SetUniformValue("ColorTexture3", m_rockTexture);
     m_terrainMaterial->SetUniformValue("ColorTexture4", m_snowTexture);
     m_terrainMaterial->SetUniformValue("ColorTextureRange1", glm::vec2(-0.2f, 0.0f));
     m_terrainMaterial->SetUniformValue("ColorTextureRange2", glm::vec2(0.1f, 0.2f));
-    m_terrainMaterial->SetUniformValue("ColorTextureRange3", glm::vec2(0.25f, 0.3f)); */
+    m_terrainMaterial->SetUniformValue("ColorTextureRange3", glm::vec2(0.25f, 0.3f));
     m_terrainMaterial->SetUniformValue("ColorTextureScale", glm::vec2(0.125f));
 
     m_terrainMaterial2 = std::make_shared<Material>(*m_terrainMaterial);

@@ -46,7 +46,13 @@ private:
 
     std::shared_ptr<Material> m_defaultMaterial;
     std::shared_ptr<Material> m_terrainMaterial;
+    std::shared_ptr<Material> m_terrainMaterial2;
+    std::shared_ptr<Material> m_terrainMaterial3;
+    std::shared_ptr<Material> m_terrainMaterial4;
 
     std::shared_ptr<Texture2DObject> m_defaultTexture;
     std::shared_ptr<Texture2DObject> m_heightmapTexture;
+    std::shared_ptr<Texture2DObject> m_heightmapTexture2;
+    std::shared_ptr<Texture2DObject> m_heightmapTexture3;
+    std::shared_ptr<Texture2DObject> m_heightmapTexture4;
 };

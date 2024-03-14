@@ -21,6 +21,7 @@ ViewerApplication::ViewerApplication()
     , m_lightColor(0.0f)
     , m_lightIntensity(0.0f)
     , m_lightPosition(0.0f)
+    , m_specularExponentGrass(100.0f)
 {
 }
 
@@ -46,6 +47,9 @@ void ViewerApplication::Update()
 
     // Update camera controller
     UpdateCamera();
+
+    m_model.GetMaterial(1).SetUniformValue("SpecularExponent", m_specularExponentGrass);
+
 }
 
 void ViewerApplication::Render()
@@ -88,6 +92,8 @@ void ViewerApplication::InitializeModel()
     material->SetUniformValue("Color", glm::vec4(1.0f));
     material->SetUniformValue("AmbientReflection", 1.0f);
     material->SetUniformValue("DiffuseReflection", 1.0f);
+    material->SetUniformValue("SpecularReflection", 1.0f);
+    material->SetUniformValue("SpecularExponent", 100.0f);
 
     // Setup function
     ShaderProgram::Location worldMatrixLocation = shaderProgram->GetUniformLocation("WorldMatrix");
@@ -95,6 +101,7 @@ void ViewerApplication::InitializeModel()
     ShaderProgram::Location ambientColorLocation = shaderProgram->GetUniformLocation("AmbientColor");
     ShaderProgram::Location lightColorLocation = shaderProgram->GetUniformLocation("LightColor");
     ShaderProgram::Location lightPositionLocation = shaderProgram->GetUniformLocation("LightPosition");
+    ShaderProgram::Location cameraPositionLocation = shaderProgram->GetUniformLocation("CameraPosition");
     material->SetShaderSetupFunction([=](ShaderProgram& shaderProgram)
         {
             shaderProgram.SetUniform(worldMatrixLocation, glm::scale(glm::vec3(0.1f)));
@@ -104,6 +111,7 @@ void ViewerApplication::InitializeModel()
             shaderProgram.SetUniform(ambientColorLocation, m_ambientColor);
             shaderProgram.SetUniform(lightColorLocation, m_lightColor * m_lightIntensity);
             shaderProgram.SetUniform(lightPositionLocation, m_lightPosition);
+            shaderProgram.SetUniform(cameraPositionLocation, m_cameraPosition);
 
         });
 
@@ -157,6 +165,8 @@ void ViewerApplication::RenderGUI()
     ImGui::DragFloat3("Light position", &m_lightPosition[0], 0.1f);
     ImGui::ColorEdit3("Light color", &m_lightColor[0]);
     ImGui::DragFloat("Light intensity", &m_lightIntensity, 0.0f, 0.0f, 100.0f);
+    ImGui::Separator();
+    ImGui::DragFloat("Specular exponent (grass)", &m_specularExponentGrass, 1.0f, 0.0f, 1000.0f);
 
     m_imGui.EndFrame();
 }

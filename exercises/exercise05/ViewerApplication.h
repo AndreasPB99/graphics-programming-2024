@@ -52,5 +52,5 @@ private:
     glm::vec3 m_lightColor;
     float m_lightIntensity;
     glm::vec3 m_lightPosition;
-
+    float m_specularExponentGrass;
 };

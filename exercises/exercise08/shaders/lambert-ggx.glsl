@@ -23,17 +23,16 @@ vec3 GetAlbedo(SurfaceData data)
 	// (todo) 08.7: Adjust albedo with metalness
 
 
-	return data.albedo;
+	return mix(data.albedo, vec3(0.0f), data.metalness);
 }
 
 // Get the surface reflectance
 vec3 GetReflectance(SurfaceData data)
 {
 	// (todo) 08.7: Get reflectance value for metals
-
+	return mix(vec3(0.04f), data.albedo, data.metalness);
 
 	// We use a fixed value for dielectric, with a typical value for these materials (4%)
-	return vec3(0.04f);
 }
 
 // Schlick simplification of the Fresnel term

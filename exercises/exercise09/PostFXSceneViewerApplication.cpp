@@ -35,6 +35,7 @@ PostFXSceneViewerApplication::PostFXSceneViewerApplication()
     , m_hueShift(0.0f)
     , m_saturation(1.0f)
     , m_colorFilter(1.0f)
+    , m_blurIterations(1)
 
 {
 }
@@ -275,6 +276,25 @@ void PostFXSceneViewerApplication::InitializeFramebuffers()
     FramebufferObject::Unbind();
 
     // (todo) 09.3: Add temp textures and frame buffers
+    for (int i = 0; i < m_tempFramebuffers.size(); ++i) {
+        m_tempTextures[i] = std::make_shared<Texture2DObject>();
+        m_tempTextures[i]->Bind();
+        m_tempTextures[i]->SetImage(0, width, height, TextureObject::FormatRGBA, TextureObject::InternalFormat::InternalFormatRGBA16F);
+        m_tempTextures[i]->SetParameter(TextureObject::ParameterEnum::WrapS, GL_CLAMP_TO_EDGE);
+        m_tempTextures[i]->SetParameter(TextureObject::ParameterEnum::WrapT, GL_CLAMP_TO_EDGE);
+        m_tempTextures[i]->SetParameter(TextureObject::ParameterEnum::MinFilter, GL_LINEAR);
+        m_tempTextures[i]->SetParameter(TextureObject::ParameterEnum::MagFilter, GL_LINEAR);
+
+
+        m_tempFramebuffers[i] = std::make_shared<FramebufferObject>();
+        m_tempFramebuffers[i]->Bind();
+        m_tempFramebuffers[i]->SetTexture(FramebufferObject::Target::Draw, FramebufferObject::Attachment::Color0, *m_tempTextures[i]);
+        m_tempFramebuffers[i]->SetDrawBuffers(std::array<FramebufferObject::Attachment, 1>({ FramebufferObject::Attachment::Color0 }));
+
+    }
+
+    Texture2DObject::Unbind();
+    FramebufferObject::Unbind();
 
 }
 
@@ -308,17 +328,28 @@ void PostFXSceneViewerApplication::InitializeRenderer()
     m_renderer.AddRenderPass(std::make_unique<SkyboxRenderPass>(m_skyboxTexture));
 
     // (todo) 09.3: Create a copy pass from m_sceneTexture to the first temporary texture
-
+    std::shared_ptr<Material> copyMaterial = CreatePostFXMaterial("shaders/postfx/copy.frag", m_sceneTexture);
+    m_renderer.AddRenderPass(std::make_unique<PostFXRenderPass>(copyMaterial, m_tempFramebuffers[0]));
 
     // (todo) 09.4: Replace the copy pass with a new bloom pass
 
 
     // (todo) 09.3: Add blur passes
+    std::shared_ptr<Material> blurHorizontalMaterial = CreatePostFXMaterial("shaders/postfx/blur.frag", m_tempTextures[0]);
+    blurHorizontalMaterial->SetUniformValue("Scale", glm::vec2(1.0f / width, 0.0f));
+    std::shared_ptr<Material> blurVerticalMaterial = CreatePostFXMaterial("shaders/postfx/blur.frag", m_tempTextures[1]);
+    blurVerticalMaterial->SetUniformValue("Scale", glm::vec2(0.0f, 1.0f / height));
+
+    for (int i = 0; i < m_blurIterations; ++i)
+    {
+        m_renderer.AddRenderPass(std::make_unique<PostFXRenderPass>(blurHorizontalMaterial, m_tempFramebuffers[1]));
+        m_renderer.AddRenderPass(std::make_unique<PostFXRenderPass>(blurVerticalMaterial, m_tempFramebuffers[0]));
+    }
 
 
     // Final pass
     // (todo) 09.1: Replace with a new m_composeMaterial, using a new shader
-    m_composeMaterial = CreatePostFXMaterial("shaders/postfx/compose.frag", m_sceneTexture);
+    m_composeMaterial = CreatePostFXMaterial("shaders/postfx/compose.frag", m_tempTextures[0]);
     m_renderer.AddRenderPass(std::make_unique<PostFXRenderPass>(m_composeMaterial, m_renderer.GetDefaultFramebuffer()));
 
     // (todo) 09.1: Set exposure uniform default value

@@ -59,6 +59,7 @@ private:
     std::shared_ptr<Material> m_deferredMaterial;
     std::shared_ptr<Material> m_composeMaterial;
     // (todo) 09.4: Add a new material for bloom
+    std::shared_ptr<Material> m_bloomMaterial;
 
     // Framebuffers
     std::shared_ptr<FramebufferObject> m_sceneFramebuffer;
@@ -78,5 +79,8 @@ private:
     float m_saturation;
     glm::vec3 m_colorFilter;
     int m_blurIterations;
+
+    glm::vec2 m_bloomRange;
+    float m_bloomIntensity;
 
 };

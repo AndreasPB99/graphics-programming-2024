@@ -11,6 +11,7 @@ uniform float Contrast;
 uniform float HueShift;
 uniform float Saturation;
 uniform vec3 ColorFilter;
+uniform sampler2D BloomTexture;
 
 vec3 AdjustContrast(vec3 color)
 {
@@ -40,6 +41,7 @@ vec3 ApplyColorFilter(vec3 color)
 void main()
 {
 	vec3 hdrColor = texture(SourceTexture, TexCoord).rgb;
+	hdrColor += texture(BloomTexture, TexCoord).rgb;
 	vec3 color = vec3(1.0f) - exp(-hdrColor * Exposure);
 
 		// Color grading

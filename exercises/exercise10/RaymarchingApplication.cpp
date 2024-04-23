@@ -92,6 +92,7 @@ void RaymarchingApplication::InitializeMaterial()
     m_material->SetUniformValue("BoxMatrix", glm::translate(glm::vec3(2, 0, -10)));
     m_material->SetUniformValue("BoxSize", glm::vec3(1, 1, 1));
     m_material->SetUniformValue("BoxColor", glm::vec3(1, 0, 0));
+    m_material->SetUniformValue("Smoothness", 1.0f);
 }
 
 void RaymarchingApplication::InitializeRenderer()
@@ -135,6 +136,7 @@ void RaymarchingApplication::RenderGUI()
     if (auto window = m_imGui.UseWindow("Scene parameters"))
     {
         // (todo) 10.3: Get the camera view matrix and transform the sphere center and the box matrix
+        ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("Smoothness"), 1.0f);
 
         if (ImGui::TreeNodeEx("Sphere", ImGuiTreeNodeFlags_DefaultOpen))
         {

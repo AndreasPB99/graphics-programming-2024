@@ -27,7 +27,6 @@ void RaymarchingApplication::Initialize()
     InitializeCamera();
     InitializeMaterial();
     InitializeRenderer();
-    InitializeViewMatrixRelation();
 }
 
 void RaymarchingApplication::Update()
@@ -44,6 +43,9 @@ void RaymarchingApplication::Update()
     // Update the material properties
     m_material->SetUniformValue("ProjMatrix", camera.GetProjectionMatrix());
     m_material->SetUniformValue("InvProjMatrix", glm::inverse(camera.GetProjectionMatrix()));
+
+    //Update view relation
+    SetViewMatrixRelation();
 }
 
 void RaymarchingApplication::Render()
@@ -134,7 +136,7 @@ std::shared_ptr<Material> RaymarchingApplication::CreateRaymarchingMaterial(cons
     return material;
 }
 
-void RaymarchingApplication::InitializeViewMatrixRelation() {
+void RaymarchingApplication::SetViewMatrixRelation() {
 
     glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
     static glm::vec3 cylinderTranslation(0, 1, -10);

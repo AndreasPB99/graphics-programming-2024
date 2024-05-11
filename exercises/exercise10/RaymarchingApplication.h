@@ -23,7 +23,7 @@ private:
     void InitializeCamera();
     void InitializeMaterial();
     void InitializeRenderer();
-    void InitializeViewMatrixRelation();
+    void SetViewMatrixRelation();
 
     std::shared_ptr<Material> CreateRaymarchingMaterial(const char* fragmentShaderPath);
 

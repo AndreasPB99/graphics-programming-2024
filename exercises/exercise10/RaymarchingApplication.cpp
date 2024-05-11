@@ -92,17 +92,18 @@ void RaymarchingApplication::InitializeMaterial()
     m_material->SetUniformValue("SphereCenter", glm::vec3(-2, 0, -10));
     m_material->SetUniformValue("SphereRadius", 1.25f);
     m_material->SetUniformValue("SphereColor", glm::vec3(0, 0, 1));
+    m_material->SetUniformValue("SphereSmoothness", 1.0f);
 
     m_material->SetUniformValue("CylinderMatrix", glm::translate(glm::vec3(2, 2, -10)));
     m_material->SetUniformValue("CylinderRadius", 1.25f);
     m_material->SetUniformValue("CylinderHeight", 1.25f);
     m_material->SetUniformValue("CylinderColor", glm::vec3(0, 1, 0));
+    m_material->SetUniformValue("CylinderSmoothness", 1.0f);
 
     m_material->SetUniformValue("BoxMatrix", glm::translate(glm::vec3(2, 0, -10)));
     m_material->SetUniformValue("BoxSize", glm::vec3(1, 1, 1));
     m_material->SetUniformValue("BoxColor", glm::vec3(1, 0, 0));
-
-    m_material->SetUniformValue("Smoothness", 1.0f);
+    m_material->SetUniformValue("BoxSmoothness", 1.0f);
 }
 
 void RaymarchingApplication::InitializeRenderer()
@@ -163,15 +164,14 @@ void RaymarchingApplication::RenderGUI()
     {
         // (todo) 10.3: Get the camera view matrix and transform the sphere center and the box matrix
         glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
-        ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("Smoothness"), 1.0f);
 
         if (ImGui::TreeNodeEx("Sphere", ImGuiTreeNodeFlags_OpenOnDoubleClick))
         {
             static glm::vec3 sphereCenter(-2, 0, -10);
+            ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("SphereSmoothness"), 0.1f);
+            ImGui::DragFloat3("Center", &sphereCenter[0], 0.1f);
             
-            ImGui::DragFloat3("SphereCenter", &sphereCenter[0], 0.1f);
-            
-            m_material->SetUniformValue("SphereCenter", glm::vec3(viewMatrix * glm::vec4(sphereCenter, 1.0f)));
+            m_material->SetUniformValue("SphereCenter", glm::vec3(viewMatrix * glm::vec4(sphereCenter, 0.2f)));
             ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("SphereRadius"), 0.1f);
             ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("SphereColor"));
             ImGui::TreePop();
@@ -184,6 +184,7 @@ void RaymarchingApplication::RenderGUI()
             static glm::vec3 cylinderTranslation(0, 1, -10);
             static glm::vec3 cylinderRotation(0.0f);
 
+            ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("CylinderSmoothness"), 0.1f);
             ImGui::DragFloat3("Translation", &cylinderTranslation[0], 0.1f);
             ImGui::DragFloat3("Rotation", &cylinderRotation[0], 0.1f);
             m_material->SetUniformValue("CylinderMatrix", viewMatrix * glm::translate(cylinderTranslation) * glm::eulerAngleXYZ(cylinderRotation.x, cylinderRotation.y, cylinderRotation.z));
@@ -197,6 +198,7 @@ void RaymarchingApplication::RenderGUI()
             static glm::vec3 boxTranslation(2, 0, -10);
             static glm::vec3 boxRotation(0.0f);
 
+            ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("BoxSmoothness"), 0.1f);
             ImGui::DragFloat3("Translation", &boxTranslation[0], 0.1f);
             ImGui::DragFloat3("Rotation", &boxRotation[0], 0.1f);
             m_material->SetUniformValue("BoxMatrix", viewMatrix * glm::translate(boxTranslation) * glm::eulerAngleXYZ(boxRotation.x, boxRotation.y, boxRotation.z));

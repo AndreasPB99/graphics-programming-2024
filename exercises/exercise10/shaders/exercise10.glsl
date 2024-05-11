@@ -15,12 +15,15 @@ uniform float CylinderRadius = 1.5f;
 uniform float CylinderHeight = 2.1f;
 
 
-uniform float Smoothness = 1.0f;
+uniform float SphereSmoothness = 1.0f;
+uniform float CylinderSmoothness = 1.0f;
+uniform float BoxSmoothness = 1.0f;
 
 struct SDFHelper
 {
 	float d;
 	vec3 color;
+	float smoothness;
 };
 
 // Output structure
@@ -36,13 +39,13 @@ float GetDistance(vec3 p, inout Output o)
 {
 
 	float dSphere = SphereSDF(TransformToLocalPoint(p, SphereCenter), SphereRadius);
-	SDFHelper SDFSphere = SDFHelper(dSphere, SphereColor);
+	SDFHelper SDFSphere = SDFHelper(dSphere, SphereColor, SphereSmoothness);
 
 	float dBox = BoxSDF(TransformToLocalPoint(p, BoxMatrix), BoxSize);
-	SDFHelper SDFBox = SDFHelper(dBox, BoxColor);
+	SDFHelper SDFBox = SDFHelper(dBox, BoxColor, BoxSmoothness);
 
 	float dCylinder = CylinderSDF(TransformToLocalPoint(p, CylinderMatrix), CylinderHeight, CylinderRadius);
-	SDFHelper SDFCylinder = SDFHelper(dCylinder, CylinderColor);
+	SDFHelper SDFCylinder = SDFHelper(dCylinder, CylinderColor, CylinderSmoothness);
 
 	float blend = 0.0f;
 	int closest = 0;
@@ -71,8 +74,8 @@ float GetDistance(vec3 p, inout Output o)
 	}
 	SDFHelper t = distances[closest];
 	SDFHelper y = distances[secondClosest];
-
-	float ty = SmoothUnion(t.d, y.d, Smoothness, blend);
+	float smoothness = (t.smoothness + y.smoothness) / 2;
+	float ty = SmoothUnion(t.d, y.d, smoothness, blend);
 	o.color = mix(t.color, y.color, blend);
 	return ty;
 

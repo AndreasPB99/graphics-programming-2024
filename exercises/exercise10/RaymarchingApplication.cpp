@@ -89,9 +89,16 @@ void RaymarchingApplication::InitializeMaterial()
     m_material->SetUniformValue("SphereCenter", glm::vec3(-2, 0, -10));
     m_material->SetUniformValue("SphereRadius", 1.25f);
     m_material->SetUniformValue("SphereColor", glm::vec3(0, 0, 1));
+
+    m_material->SetUniformValue("CylinderMatrix", glm::translate(glm::vec3(2, 2, -10)));
+    m_material->SetUniformValue("CylinderRadius", 1.25f);
+    m_material->SetUniformValue("CylinderHeight", 1.25f);
+    m_material->SetUniformValue("CylinderColor", glm::vec3(0, 0, 1));
+
     m_material->SetUniformValue("BoxMatrix", glm::translate(glm::vec3(2, 0, -10)));
     m_material->SetUniformValue("BoxSize", glm::vec3(1, 1, 1));
     m_material->SetUniformValue("BoxColor", glm::vec3(1, 0, 0));
+
     m_material->SetUniformValue("Smoothness", 1.0f);
 }
 
@@ -141,25 +148,41 @@ void RaymarchingApplication::RenderGUI()
 
         if (ImGui::TreeNodeEx("Sphere", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            // (todo) 10.1: Add controls for sphere parameters
-            static glm::vec3 center(-2, 0, -10);
-
-            ImGui::DragFloat3("Center", &center[0], 0.1f);
-            m_material->SetUniformValue("SphereCenter", glm::vec3(viewMatrix * glm::vec4(center, 1.0f)));
+            static glm::vec3 sphereCenter(-2, 0, -10);
+            
+            ImGui::DragFloat3("SphereCenter", &sphereCenter[0], 0.1f);
+            
+            m_material->SetUniformValue("SphereCenter", glm::vec3(viewMatrix * glm::vec4(sphereCenter, 1.0f)));
             ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("SphereRadius"), 0.1f);
             ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("SphereColor"));
+            ImGui::TreePop();
+        } 
+       
+        
+        if (ImGui::TreeNodeEx("Cylinder", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+
+            static glm::vec3 cylinderTranslation(2, 0, -10);
+            static glm::vec3 cylinderRotation(0.0f);
+
+            ImGui::DragFloat3("Translation", &cylinderTranslation[0], 0.1f);
+            ImGui::DragFloat3("Rotation", &cylinderRotation[0], 0.1f);
+            m_material->SetUniformValue("CylinderMatrix", viewMatrix * glm::translate(cylinderTranslation) * glm::eulerAngleXYZ(cylinderRotation.x, cylinderRotation.y, cylinderRotation.z));
+            ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("CylinderRadius"), 1.0f);
+            ImGui::DragFloat("Height", m_material->GetDataUniformPointer<float>("CylinderHeight"), 2.0f);
+            ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("CylinderColor"));
             ImGui::TreePop();
         }
         if (ImGui::TreeNodeEx("Box", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            static glm::vec3 translation(2, 0, -10);
-            static glm::vec3 rotation(0.0f);
+            static glm::vec3 boxTranslation(2, 0, -10);
+            static glm::vec3 boxRotation(0.0f);
 
-            // (todo) 10.1: Add controls for box parameters
-            ImGui::DragFloat3("Translation", &translation[0], 0.1f);
-            ImGui::DragFloat3("Rotation", &rotation[0], 0.1f);
-            m_material->SetUniformValue("BoxMatrix", viewMatrix * glm::translate(translation) * glm::eulerAngleXYZ(rotation.x, rotation.y, rotation.z));
+            ImGui::DragFloat3("Translation", &boxTranslation[0], 0.1f);
+            ImGui::DragFloat3("Rotation", &boxRotation[0], 0.1f);
+            m_material->SetUniformValue("BoxMatrix", viewMatrix * glm::translate(boxTranslation) * glm::eulerAngleXYZ(boxRotation.x, boxRotation.y, boxRotation.z));
             ImGui::DragFloat3("Size", m_material->GetDataUniformPointer<float>("BoxSize"), 0.1f);
+            ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("BoxColor"));
 
             ImGui::TreePop();
         }

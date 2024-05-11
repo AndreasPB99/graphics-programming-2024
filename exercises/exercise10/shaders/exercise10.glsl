@@ -14,10 +14,14 @@ uniform mat4 CylinderMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
 uniform float CylinderRadius = 1.5f;
 uniform float CylinderHeight = 2.1f;
 
+uniform vec3 TriPrismColor = vec3(0, 1, 1);
+uniform mat4 TriPrismMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
+uniform vec2 TriPrismHeight = vec2(1, 1);
 
 uniform float SphereSmoothness = 1.0f;
 uniform float CylinderSmoothness = 1.0f;
 uniform float BoxSmoothness = 1.0f;
+uniform float TriPrismSmoothness = 1.0f;
 
 struct SDFHelper
 {
@@ -47,13 +51,16 @@ float GetDistance(vec3 p, inout Output o)
 	float dCylinder = CylinderSDF(TransformToLocalPoint(p, CylinderMatrix), CylinderHeight, CylinderRadius);
 	SDFHelper SDFCylinder = SDFHelper(dCylinder, CylinderColor, CylinderSmoothness);
 
+	float dTriPrism = TriPrismSDF(TransformToLocalPoint(p, TriPrismMatrix), TriPrismHeight);
+	SDFHelper SDFTriPrism = SDFHelper(dTriPrism, TriPrismColor, TriPrismSmoothness);
+
 	float blend = 0.0f;
 	int closest = 0;
 	int secondClosest = 1;
 
 	// length of array and max iteration for i must be the same
-	SDFHelper distances[3] = SDFHelper[](SDFSphere, SDFBox, SDFCylinder);
-	for(int i=0;i<3;++i){
+	SDFHelper distances[4] = SDFHelper[](SDFSphere, SDFBox, SDFCylinder, SDFTriPrism);
+	for(int i=0;i<4;++i){
 		SDFHelper curr = distances[i];
 		if (i != closest){
 			if (i != secondClosest){
@@ -72,12 +79,12 @@ float GetDistance(vec3 p, inout Output o)
 			}
 		}
 	}
-	SDFHelper t = distances[closest];
-	SDFHelper y = distances[secondClosest];
-	float smoothness = (t.smoothness + y.smoothness) / 2;
-	float ty = SmoothUnion(t.d, y.d, smoothness, blend);
-	o.color = mix(t.color, y.color, blend);
-	return ty;
+	SDFHelper a = distances[closest];
+	SDFHelper b = distances[secondClosest];
+	float smoothness = (a.smoothness + b.smoothness) / 2;
+	float abd = SmoothUnion(a.d, b.d, smoothness, blend);
+	o.color = mix(a.color, b.color, blend);
+	return abd;
 
 }
 

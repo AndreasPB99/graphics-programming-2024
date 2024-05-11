@@ -41,4 +41,18 @@ private:
 
     // Materials
     std::shared_ptr<Material> m_material;
+
+
+    
+    glm::vec3 cylinderTranslation = glm::vec3(0, 1, -10);
+    glm::vec3 cylinderRotation = glm::vec3(0.0f);
+
+    glm::vec3 sphereCenter = glm::vec3(-3, 1, -10);
+
+    glm::vec3 boxTranslation = glm::vec3(-6, 1, -10);
+    glm::vec3 boxRotation = glm::vec3(0.0f);
+
+    glm::vec3 TriPrismTranslation = glm::vec3(3, 1, -10);
+    glm::vec3 TriPrismRotation = glm::vec3(0.0f);
+    glm::vec2 TriPrismHeight = glm::vec2(0.8f);
 };

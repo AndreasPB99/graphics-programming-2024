@@ -90,13 +90,13 @@ void RaymarchingApplication::InitializeMaterial()
 
     // (todo) 10.X: Initialize material uniforms
     m_material->SetUniformValue("SphereCenter", glm::vec3(-2, 0, -10));
-    m_material->SetUniformValue("SphereRadius", 1.25f);
+    m_material->SetUniformValue("SphereRadius", 1.0f);
     m_material->SetUniformValue("SphereColor", glm::vec3(0, 0, 1));
     m_material->SetUniformValue("SphereSmoothness", 1.0f);
 
     m_material->SetUniformValue("CylinderMatrix", glm::translate(glm::vec3(2, 2, -10)));
-    m_material->SetUniformValue("CylinderRadius", 1.25f);
-    m_material->SetUniformValue("CylinderHeight", 1.25f);
+    m_material->SetUniformValue("CylinderRadius", 1.0f);
+    m_material->SetUniformValue("CylinderHeight", 1.0f);
     m_material->SetUniformValue("CylinderColor", glm::vec3(0, 1, 0));
     m_material->SetUniformValue("CylinderSmoothness", 1.0f);
 
@@ -104,6 +104,11 @@ void RaymarchingApplication::InitializeMaterial()
     m_material->SetUniformValue("BoxSize", glm::vec3(1, 1, 1));
     m_material->SetUniformValue("BoxColor", glm::vec3(1, 0, 0));
     m_material->SetUniformValue("BoxSmoothness", 1.0f);
+
+    m_material->SetUniformValue("TriPrismMatrix", glm::translate(glm::vec3(2, 2, -10)));
+    m_material->SetUniformValue("TriPrismHeight", glm::vec2(0.8, 0.8));
+    m_material->SetUniformValue("TriPrismColor", glm::vec3(0, 1, 1));
+    m_material->SetUniformValue("TriPrismSmoothness", 1.0f);
 }
 
 void RaymarchingApplication::InitializeRenderer()
@@ -123,6 +128,7 @@ std::shared_ptr<Material> RaymarchingApplication::CreateRaymarchingMaterial(cons
     fragmentShaderPaths.push_back("shaders/version330.glsl");
     fragmentShaderPaths.push_back("shaders/utils.glsl");
     fragmentShaderPaths.push_back("shaders/sdflibrary.glsl");
+    fragmentShaderPaths.push_back("shaders/sdflibrary-additions.glsl");
     fragmentShaderPaths.push_back("shaders/raymarcher.glsl");
     fragmentShaderPaths.push_back(fragmentShaderPath);
     fragmentShaderPaths.push_back("shaders/raymarching.frag");
@@ -140,17 +146,11 @@ std::shared_ptr<Material> RaymarchingApplication::CreateRaymarchingMaterial(cons
 void RaymarchingApplication::SetViewMatrixRelation() {
 
     glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
-    static glm::vec3 cylinderTranslation(0, 1, -10);
-    static glm::vec3 cylinderRotation(0.0f);
     m_material->SetUniformValue("CylinderMatrix", viewMatrix * glm::translate(cylinderTranslation) * glm::eulerAngleXYZ(cylinderRotation.x, cylinderRotation.y, cylinderRotation.z));
-
-    static glm::vec3 sphereCenter(-2, 0, -10);
     m_material->SetUniformValue("SphereCenter", glm::vec3(viewMatrix * glm::vec4(sphereCenter, 1.0f)));
-
-    static glm::vec3 boxTranslation(2, 0, -10);
-    static glm::vec3 boxRotation(0.0f);
     m_material->SetUniformValue("BoxMatrix", viewMatrix * glm::translate(boxTranslation) * glm::eulerAngleXYZ(boxRotation.x, boxRotation.y, boxRotation.z));
-
+    m_material->SetUniformValue("TriPrismMatrix", viewMatrix * glm::translate(TriPrismTranslation) * glm::eulerAngleXYZ(TriPrismRotation.x, TriPrismRotation.y, TriPrismRotation.z));
+    m_material->SetUniformValue("TriPrismHeight", TriPrismHeight);
 }
 
 void RaymarchingApplication::RenderGUI()
@@ -167,7 +167,6 @@ void RaymarchingApplication::RenderGUI()
 
         if (ImGui::TreeNodeEx("Sphere", ImGuiTreeNodeFlags_OpenOnDoubleClick))
         {
-            static glm::vec3 sphereCenter(-2, 0, -10);
             ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("SphereSmoothness"), 0.1f);
             ImGui::DragFloat3("Center", &sphereCenter[0], 0.1f);
             
@@ -181,9 +180,6 @@ void RaymarchingApplication::RenderGUI()
         if (ImGui::TreeNodeEx("Cylinder", ImGuiTreeNodeFlags_OpenOnDoubleClick))
         {
 
-            static glm::vec3 cylinderTranslation(0, 1, -10);
-            static glm::vec3 cylinderRotation(0.0f);
-
             ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("CylinderSmoothness"), 0.1f);
             ImGui::DragFloat3("Translation", &cylinderTranslation[0], 0.1f);
             ImGui::DragFloat3("Rotation", &cylinderRotation[0], 0.1f);
@@ -195,8 +191,6 @@ void RaymarchingApplication::RenderGUI()
         }
         if (ImGui::TreeNodeEx("Box", ImGuiTreeNodeFlags_OpenOnDoubleClick))
         {
-            static glm::vec3 boxTranslation(2, 0, -10);
-            static glm::vec3 boxRotation(0.0f);
 
             ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("BoxSmoothness"), 0.1f);
             ImGui::DragFloat3("Translation", &boxTranslation[0], 0.1f);
@@ -204,6 +198,21 @@ void RaymarchingApplication::RenderGUI()
             m_material->SetUniformValue("BoxMatrix", viewMatrix * glm::translate(boxTranslation) * glm::eulerAngleXYZ(boxRotation.x, boxRotation.y, boxRotation.z));
             ImGui::DragFloat3("Size", m_material->GetDataUniformPointer<float>("BoxSize"), 0.1f);
             ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("BoxColor"));
+
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNodeEx("Prism", ImGuiTreeNodeFlags_OpenOnDoubleClick))
+        {
+
+            ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("TriPrismSmoothness"), 0.1f);
+
+            ImGui::DragFloat3("Translation", &TriPrismTranslation[0], 0.1f);
+            ImGui::DragFloat3("Rotation", &TriPrismRotation[0], 0.1f);
+            m_material->SetUniformValue("TriPrismMatrix", viewMatrix * glm::translate(TriPrismTranslation) * glm::eulerAngleXYZ(TriPrismRotation.x, TriPrismRotation.y, TriPrismRotation.z));
+
+            ImGui::DragFloat2("Height", &TriPrismHeight[0], 0.1f);
+            m_material->SetUniformValue("TriPrismHeight", TriPrismHeight);
+            ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("TriPrismColor"));
 
             ImGui::TreePop();
         }

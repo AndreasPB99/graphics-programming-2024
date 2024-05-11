@@ -17,6 +17,12 @@ uniform float CylinderHeight = 2.1f;
 
 uniform float Smoothness = 1.0f;
 
+struct SDFHelper
+{
+	float d;
+	vec3 color;
+};
+
 // Output structure
 struct Output
 {
@@ -41,30 +47,31 @@ float GetDistance(vec3 p, inout Output o)
 	float bblend = 0.0f;
 	float cblend = 0.0f;
 	
+
 	float a = SmoothUnion(dSphere, dBox, Smoothness, ablend);
 	float b = SmoothUnion(dCylinder, dBox, Smoothness, bblend);
 	float c = SmoothUnion(dCylinder, dSphere, Smoothness, cblend);
 
 
+	vec3 acolor = mix(SphereColor, BoxColor, ablend);
+	vec3 bcolor = mix(CylinderColor, BoxColor, bblend);
+	vec3 ccolor = mix(CylinderColor, SphereColor, cblend);
 
-	// TODO 10.2 : Replace this with a mix, using the blend factor from SmoothUnion
-	if (b < c){
-		if (a < b){
-			o.color = mix(SphereColor, BoxColor, ablend);
-			return a;
-		} else {
-			o.color = mix(CylinderColor, BoxColor, bblend);
-			return b;
-		}
-	} else {
-		if (a < c){
-			o.color = mix(SphereColor, BoxColor, ablend);
-			return a;
-		} else {
-			o.color = mix(CylinderColor, SphereColor, cblend);
-			return c;
+
+	SDFHelper distances[3] = SDFHelper[](SDFHelper(a, acolor), SDFHelper(b, bcolor), SDFHelper(c, ccolor));
+	int index = 0;
+	float mind = distances[index].d;
+	for(int i=0;i<3;++i)
+	{
+		if(distances[i].d < mind){
+			index = i;
+			mind = distances[i].d;
 		}
 	}
+
+	SDFHelper res = distances[index];
+	o.color = res.color;
+	return res.d;
 }
 
 

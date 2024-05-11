@@ -3,20 +3,24 @@
 uniform vec3 SphereColor = vec3(0, 0, 1);
 uniform vec3 SphereCenter = vec3(-2, 0, -10);
 uniform float SphereRadius = 1.25f;
+uniform bool SphereBlend = true;
 
 uniform vec3 BoxColor = vec3(1, 0, 0);
 uniform mat4 BoxMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
 uniform mat4 BoxMatrix2 = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
 uniform vec3 BoxSize = vec3(1, 1, 1);
+uniform bool BoxBlend = true;
 
 uniform vec3 CylinderColor = vec3(0, 1, 0);
 uniform mat4 CylinderMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
 uniform float CylinderRadius = 1.5f;
 uniform float CylinderHeight = 2.1f;
+uniform bool CylinderBlend = true;
 
 uniform vec3 TriPrismColor = vec3(0, 1, 1);
 uniform mat4 TriPrismMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
 uniform vec2 TriPrismHeight = vec2(1, 1);
+uniform bool TriPrismBlend = true;
 
 uniform float SphereSmoothness = 1.0f;
 uniform float CylinderSmoothness = 1.0f;
@@ -28,6 +32,7 @@ struct SDFHelper
 	float d;
 	vec3 color;
 	float smoothness;
+	bool blend;
 };
 
 // Output structure
@@ -43,16 +48,16 @@ float GetDistance(vec3 p, inout Output o)
 {
 
 	float dSphere = SphereSDF(TransformToLocalPoint(p, SphereCenter), SphereRadius);
-	SDFHelper SDFSphere = SDFHelper(dSphere, SphereColor, SphereSmoothness);
+	SDFHelper SDFSphere = SDFHelper(dSphere, SphereColor, SphereSmoothness, SphereBlend);
 
 	float dBox = BoxSDF(TransformToLocalPoint(p, BoxMatrix), BoxSize);
-	SDFHelper SDFBox = SDFHelper(dBox, BoxColor, BoxSmoothness);
+	SDFHelper SDFBox = SDFHelper(dBox, BoxColor, BoxSmoothness, BoxBlend);
 
 	float dCylinder = CylinderSDF(TransformToLocalPoint(p, CylinderMatrix), CylinderHeight, CylinderRadius);
-	SDFHelper SDFCylinder = SDFHelper(dCylinder, CylinderColor, CylinderSmoothness);
+	SDFHelper SDFCylinder = SDFHelper(dCylinder, CylinderColor, CylinderSmoothness, CylinderBlend);
 
 	float dTriPrism = TriPrismSDF(TransformToLocalPoint(p, TriPrismMatrix), TriPrismHeight);
-	SDFHelper SDFTriPrism = SDFHelper(dTriPrism, TriPrismColor, TriPrismSmoothness);
+	SDFHelper SDFTriPrism = SDFHelper(dTriPrism, TriPrismColor, TriPrismSmoothness, TriPrismBlend);
 
 	float blend = 0.0f;
 	int closest = 0;
@@ -82,7 +87,13 @@ float GetDistance(vec3 p, inout Output o)
 	SDFHelper a = distances[closest];
 	SDFHelper b = distances[secondClosest];
 	float smoothness = (a.smoothness + b.smoothness) / 2;
-	float abd = SmoothUnion(a.d, b.d, smoothness, blend);
+	float abd;
+	if (a.blend && b.blend)
+	{
+		abd = SmoothUnion(a.d, b.d, smoothness, blend);
+	} else {
+		abd = SmoothUnion(a.d, b.d, smoothness);
+	}
 	o.color = mix(a.color, b.color, blend);
 	return abd;
 

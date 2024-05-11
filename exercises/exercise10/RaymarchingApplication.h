@@ -46,13 +46,18 @@ private:
     
     glm::vec3 cylinderTranslation = glm::vec3(0, 1, -10);
     glm::vec3 cylinderRotation = glm::vec3(0.0f);
+    bool cylinderBlend = true;
 
     glm::vec3 sphereCenter = glm::vec3(-3, 1, -10);
+    bool sphereBlend = true;
 
     glm::vec3 boxTranslation = glm::vec3(-6, 1, -10);
     glm::vec3 boxRotation = glm::vec3(0.0f);
+    bool boxBlend = true;
 
-    glm::vec3 TriPrismTranslation = glm::vec3(3, 1, -10);
-    glm::vec3 TriPrismRotation = glm::vec3(0.0f);
-    glm::vec2 TriPrismHeight = glm::vec2(0.8f);
+    glm::vec3 triPrismTranslation = glm::vec3(3, 1, -10);
+    glm::vec3 triPrismRotation = glm::vec3(0.0f);
+    glm::vec2 triPrismHeight = glm::vec2(0.8f);
+    bool triPrismBlend = true;
+
 };

@@ -6,6 +6,7 @@ uniform float SphereRadius = 1.25f;
 
 uniform vec3 BoxColor = vec3(1, 0, 0);
 uniform mat4 BoxMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
+uniform mat4 BoxMatrix2 = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
 uniform vec3 BoxSize = vec3(1, 1, 1);
 
 uniform vec3 CylinderColor = vec3(0, 1, 0);
@@ -33,11 +34,10 @@ struct Output
 // Signed distance function
 float GetDistance(vec3 p, inout Output o)
 {
-	// Sphere in position "SphereCenter" and size "SphereRadius"
+
 	float dSphere = SphereSDF(TransformToLocalPoint(p, SphereCenter), SphereRadius);
 	SDFHelper SDFSphere = SDFHelper(dSphere, SphereColor);
 
-	// Box with worldView transform "BoxMatrix" and dimensions "BoxSize"
 	float dBox = BoxSDF(TransformToLocalPoint(p, BoxMatrix), BoxSize);
 	SDFHelper SDFBox = SDFHelper(dBox, BoxColor);
 

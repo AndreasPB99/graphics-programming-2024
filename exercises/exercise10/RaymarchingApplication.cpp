@@ -27,6 +27,7 @@ void RaymarchingApplication::Initialize()
     InitializeCamera();
     InitializeMaterial();
     InitializeRenderer();
+    InitializeViewMatrixRelation();
 }
 
 void RaymarchingApplication::Update()
@@ -133,6 +134,22 @@ std::shared_ptr<Material> RaymarchingApplication::CreateRaymarchingMaterial(cons
     return material;
 }
 
+void RaymarchingApplication::InitializeViewMatrixRelation() {
+
+    glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
+    static glm::vec3 cylinderTranslation(0, 1, -10);
+    static glm::vec3 cylinderRotation(0.0f);
+    m_material->SetUniformValue("CylinderMatrix", viewMatrix * glm::translate(cylinderTranslation) * glm::eulerAngleXYZ(cylinderRotation.x, cylinderRotation.y, cylinderRotation.z));
+
+    static glm::vec3 sphereCenter(-2, 0, -10);
+    m_material->SetUniformValue("SphereCenter", glm::vec3(viewMatrix * glm::vec4(sphereCenter, 1.0f)));
+
+    static glm::vec3 boxTranslation(2, 0, -10);
+    static glm::vec3 boxRotation(0.0f);
+    m_material->SetUniformValue("BoxMatrix", viewMatrix * glm::translate(boxTranslation) * glm::eulerAngleXYZ(boxRotation.x, boxRotation.y, boxRotation.z));
+
+}
+
 void RaymarchingApplication::RenderGUI()
 {
     m_imGui.BeginFrame();
@@ -146,7 +163,7 @@ void RaymarchingApplication::RenderGUI()
         glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
         ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("Smoothness"), 1.0f);
 
-        if (ImGui::TreeNodeEx("Sphere", ImGuiTreeNodeFlags_DefaultOpen))
+        if (ImGui::TreeNodeEx("Sphere", ImGuiTreeNodeFlags_OpenOnDoubleClick))
         {
             static glm::vec3 sphereCenter(-2, 0, -10);
             
@@ -159,7 +176,7 @@ void RaymarchingApplication::RenderGUI()
         } 
        
         
-        if (ImGui::TreeNodeEx("Cylinder", ImGuiTreeNodeFlags_DefaultOpen))
+        if (ImGui::TreeNodeEx("Cylinder", ImGuiTreeNodeFlags_OpenOnDoubleClick))
         {
 
             static glm::vec3 cylinderTranslation(0, 1, -10);
@@ -173,7 +190,7 @@ void RaymarchingApplication::RenderGUI()
             ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("CylinderColor"));
             ImGui::TreePop();
         }
-        if (ImGui::TreeNodeEx("Box", ImGuiTreeNodeFlags_DefaultOpen))
+        if (ImGui::TreeNodeEx("Box", ImGuiTreeNodeFlags_OpenOnDoubleClick))
         {
             static glm::vec3 boxTranslation(2, 0, -10);
             static glm::vec3 boxRotation(0.0f);

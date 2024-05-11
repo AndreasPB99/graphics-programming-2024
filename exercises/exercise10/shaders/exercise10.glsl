@@ -1,6 +1,5 @@
 
 // Uniforms
-// TODO 10.1 : Replace constants with uniforms with the same name
 uniform vec3 SphereColor = vec3(0, 0, 1);
 uniform vec3 SphereCenter = vec3(-2, 0, -10);
 uniform float SphereRadius = 1.25f;
@@ -9,7 +8,7 @@ uniform vec3 BoxColor = vec3(1, 0, 0);
 uniform mat4 BoxMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
 uniform vec3 BoxSize = vec3(1, 1, 1);
 
-uniform vec3 CylinderColor = vec3(0, 0, 1);
+uniform vec3 CylinderColor = vec3(0, 1, 0);
 uniform mat4 CylinderMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
 uniform float CylinderRadius = 1.5f;
 uniform float CylinderHeight = 2.1f;
@@ -36,42 +35,47 @@ float GetDistance(vec3 p, inout Output o)
 {
 	// Sphere in position "SphereCenter" and size "SphereRadius"
 	float dSphere = SphereSDF(TransformToLocalPoint(p, SphereCenter), SphereRadius);
+	SDFHelper SDFSphere = SDFHelper(dSphere, SphereColor);
 
 	// Box with worldView transform "BoxMatrix" and dimensions "BoxSize"
 	float dBox = BoxSDF(TransformToLocalPoint(p, BoxMatrix), BoxSize);
+	SDFHelper SDFBox = SDFHelper(dBox, BoxColor);
 
 	float dCylinder = CylinderSDF(TransformToLocalPoint(p, CylinderMatrix), CylinderHeight, CylinderRadius);
+	SDFHelper SDFCylinder = SDFHelper(dCylinder, CylinderColor);
 
-	// TODO 10.2 : Replace Union with SmoothUnion and try different small values of smoothness
-	float ablend = 0.0f;
-	float bblend = 0.0f;
-	float cblend = 0.0f;
-	
+	float blend = 0.0f;
+	int closest = 0;
+	int secondClosest = 1;
 
-	float a = SmoothUnion(dSphere, dBox, Smoothness, ablend);
-	float b = SmoothUnion(dCylinder, dBox, Smoothness, bblend);
-	float c = SmoothUnion(dCylinder, dSphere, Smoothness, cblend);
-
-
-	vec3 acolor = mix(SphereColor, BoxColor, ablend);
-	vec3 bcolor = mix(CylinderColor, BoxColor, bblend);
-	vec3 ccolor = mix(CylinderColor, SphereColor, cblend);
-
-
-	SDFHelper distances[3] = SDFHelper[](SDFHelper(a, acolor), SDFHelper(b, bcolor), SDFHelper(c, ccolor));
-	int index = 0;
-	float mind = distances[index].d;
-	for(int i=0;i<3;++i)
-	{
-		if(distances[i].d < mind){
-			index = i;
-			mind = distances[i].d;
+	// length of array and max iteration for i must be the same
+	SDFHelper distances[3] = SDFHelper[](SDFSphere, SDFBox, SDFCylinder);
+	for(int i=0;i<3;++i){
+		SDFHelper curr = distances[i];
+		if (i != closest){
+			if (i != secondClosest){
+				if (curr.d < distances[closest].d){
+					secondClosest = closest;
+					closest = i;
+				} else if (curr.d < distances[secondClosest].d){
+					secondClosest = i;
+				}
+			}
+			else {
+				if (curr.d < distances[closest].d){
+					secondClosest = closest;
+					closest = i;
+				}
+			}
 		}
 	}
+	SDFHelper t = distances[closest];
+	SDFHelper y = distances[secondClosest];
 
-	SDFHelper res = distances[index];
-	o.color = res.color;
-	return res.d;
+	float ty = SmoothUnion(t.d, y.d, Smoothness, blend);
+	o.color = mix(t.color, y.color, blend);
+	return ty;
+
 }
 
 

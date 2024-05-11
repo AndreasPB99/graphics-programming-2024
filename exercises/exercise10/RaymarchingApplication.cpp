@@ -93,7 +93,7 @@ void RaymarchingApplication::InitializeMaterial()
     m_material->SetUniformValue("CylinderMatrix", glm::translate(glm::vec3(2, 2, -10)));
     m_material->SetUniformValue("CylinderRadius", 1.25f);
     m_material->SetUniformValue("CylinderHeight", 1.25f);
-    m_material->SetUniformValue("CylinderColor", glm::vec3(0, 0, 1));
+    m_material->SetUniformValue("CylinderColor", glm::vec3(0, 1, 0));
 
     m_material->SetUniformValue("BoxMatrix", glm::translate(glm::vec3(2, 0, -10)));
     m_material->SetUniformValue("BoxSize", glm::vec3(1, 1, 1));
@@ -162,7 +162,7 @@ void RaymarchingApplication::RenderGUI()
         if (ImGui::TreeNodeEx("Cylinder", ImGuiTreeNodeFlags_DefaultOpen))
         {
 
-            static glm::vec3 cylinderTranslation(2, 0, -10);
+            static glm::vec3 cylinderTranslation(0, 1, -10);
             static glm::vec3 cylinderRotation(0.0f);
 
             ImGui::DragFloat3("Translation", &cylinderTranslation[0], 0.1f);

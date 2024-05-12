@@ -89,14 +89,14 @@ void RaymarchingApplication::InitializeMaterial()
     m_material = CreateRaymarchingMaterial("shaders/exercise10.glsl");
 
     // (todo) 10.X: Initialize material uniforms
-    m_material->SetUniformValue("SphereCenter", glm::vec3(-2, 0, -10));
+    m_material->SetUniformValue("SphereCenter", glm::vec3(-1, 0, -10));
     m_material->SetUniformValue("SphereRadius", 1.0f);
     m_material->SetUniformValue("SphereColor", glm::vec3(0, 0, 1));
     m_material->SetUniformValue("SphereSmoothness", 1.0f);
     m_material->SetUniformValue("SphereBlend", GL_TRUE);
     m_material->SetUniformValue("SphereEnabled", GL_TRUE);
 
-    m_material->SetUniformValue("CylinderMatrix", glm::translate(glm::vec3(2, 2, -10)));
+    m_material->SetUniformValue("CylinderMatrix", glm::translate(glm::vec3(3, 2, -10)));
     m_material->SetUniformValue("CylinderRadius", 1.0f);
     m_material->SetUniformValue("CylinderHeight", 1.0f);
     m_material->SetUniformValue("CylinderColor", glm::vec3(0, 1, 0));
@@ -104,19 +104,21 @@ void RaymarchingApplication::InitializeMaterial()
     m_material->SetUniformValue("CylinderBlend", GL_TRUE);
     m_material->SetUniformValue("CylinderEnabled", GL_TRUE);
 
-    m_material->SetUniformValue("BoxMatrix", glm::translate(glm::vec3(2, 0, -10)));
+    m_material->SetUniformValue("BoxMatrix", glm::translate(glm::vec3(4, 0, -10)));
     m_material->SetUniformValue("BoxSize", glm::vec3(1, 1, 1));
     m_material->SetUniformValue("BoxColor", glm::vec3(1, 0, 0));
     m_material->SetUniformValue("BoxSmoothness", 1.0f);
     m_material->SetUniformValue("BoxBlend", GL_TRUE);
     m_material->SetUniformValue("BoxEnabled", GL_TRUE);
 
-    m_material->SetUniformValue("TriPrismMatrix", glm::translate(glm::vec3(2, 2, -10)));
+    m_material->SetUniformValue("TriPrismMatrix", glm::translate(glm::vec3(6, 2, -10)));
     m_material->SetUniformValue("TriPrismHeight", glm::vec2(0.8, 0.8));
     m_material->SetUniformValue("TriPrismColor", glm::vec3(0, 1, 1));
     m_material->SetUniformValue("TriPrismSmoothness", 1.0f);
     m_material->SetUniformValue("TriPrismBlend", GL_TRUE);
     m_material->SetUniformValue("TriPrismEnabled", GL_TRUE);
+
+    m_material->SetUniformValue("CombinationType", combinationType);
 }
 
 void RaymarchingApplication::InitializeRenderer()
@@ -173,6 +175,10 @@ void RaymarchingApplication::RenderGUI()
         // (todo) 10.3: Get the camera view matrix and transform the sphere center and the box matrix
         glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
 
+        const char* items[] = { "None", "Union", "Subtraction", "Intersection", "XOR"};
+        ImGui::ListBox("CombinationType", &combinationType, items, IM_ARRAYSIZE(items), 5);
+        m_material->SetUniformValue("CombinationType", combinationType);
+
         if (ImGui::TreeNodeEx("Sphere", ImGuiTreeNodeFlags_OpenOnDoubleClick))
         {
 
@@ -210,8 +216,8 @@ void RaymarchingApplication::RenderGUI()
 
             ImGui::DragFloat3("Translation", &cylinderTranslation[0], 0.1f);
             ImGui::DragFloat3("Rotation", &cylinderRotation[0], 0.1f);
-            ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("CylinderRadius"), 1.0f);
-            ImGui::DragFloat("Height", m_material->GetDataUniformPointer<float>("CylinderHeight"), 2.0f);
+            ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("CylinderRadius"), 0.1f);
+            ImGui::DragFloat("Height", m_material->GetDataUniformPointer<float>("CylinderHeight"), 0.1f);
             ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("CylinderColor"));
             ImGui::TreePop();
         }

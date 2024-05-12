@@ -1,5 +1,7 @@
 
 // Uniforms
+uniform int CombinationType = 0;
+
 uniform vec3 SphereColor = vec3(0, 0, 1);
 uniform vec3 SphereCenter = vec3(-2, 0, -10);
 uniform float SphereRadius = 1.25f;
@@ -112,12 +114,27 @@ float GetDistance(vec3 p, inout Output o)
 	SDFHelper b = distances[secondClosest];
 	float smoothness = (a.smoothness + b.smoothness) / 2;
 	float abd;
-	if (a.blend && b.blend)
-	{
-		abd = SmoothUnion(a.d, b.d, smoothness, blend);
-	} else {
-		abd = SmoothUnion(a.d, b.d, smoothness);
+	if (CombinationType == 0){ //None
+		abd = a.d < b.d ? a.d : b.d;
 	}
+	else if (CombinationType == 1){ //SmoothUnion
+		if (a.blend && b.blend)
+		{
+			abd = SmoothUnion(a.d, b.d, smoothness, blend);
+		} else {
+			abd = SmoothUnion(a.d, b.d, smoothness);
+		}
+	}
+	else if (CombinationType == 2) { //Substraction
+		abd = SmoothSubtraction(a.d, b.d, smoothness);
+	}
+	else if (CombinationType == 3) { //Intersection
+		abd = SmoothIntersection(a.d, b.d, smoothness);
+	}
+	else if (CombinationType == 4) { //XOR
+		abd = SDFXor(a.d, b.d);
+	}
+
 	o.color = mix(a.color, b.color, blend);
 	return abd;
 

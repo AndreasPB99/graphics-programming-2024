@@ -94,6 +94,7 @@ void RaymarchingApplication::InitializeMaterial()
     m_material->SetUniformValue("SphereColor", glm::vec3(0, 0, 1));
     m_material->SetUniformValue("SphereSmoothness", 1.0f);
     m_material->SetUniformValue("SphereBlend", GL_TRUE);
+    m_material->SetUniformValue("SphereEnabled", GL_TRUE);
 
     m_material->SetUniformValue("CylinderMatrix", glm::translate(glm::vec3(2, 2, -10)));
     m_material->SetUniformValue("CylinderRadius", 1.0f);
@@ -101,18 +102,21 @@ void RaymarchingApplication::InitializeMaterial()
     m_material->SetUniformValue("CylinderColor", glm::vec3(0, 1, 0));
     m_material->SetUniformValue("CylinderSmoothness", 1.0f);
     m_material->SetUniformValue("CylinderBlend", GL_TRUE);
+    m_material->SetUniformValue("CylinderEnabled", GL_TRUE);
 
     m_material->SetUniformValue("BoxMatrix", glm::translate(glm::vec3(2, 0, -10)));
     m_material->SetUniformValue("BoxSize", glm::vec3(1, 1, 1));
     m_material->SetUniformValue("BoxColor", glm::vec3(1, 0, 0));
     m_material->SetUniformValue("BoxSmoothness", 1.0f);
     m_material->SetUniformValue("BoxBlend", GL_TRUE);
+    m_material->SetUniformValue("BoxEnabled", GL_TRUE);
 
     m_material->SetUniformValue("TriPrismMatrix", glm::translate(glm::vec3(2, 2, -10)));
     m_material->SetUniformValue("TriPrismHeight", glm::vec2(0.8, 0.8));
     m_material->SetUniformValue("TriPrismColor", glm::vec3(0, 1, 1));
     m_material->SetUniformValue("TriPrismSmoothness", 1.0f);
     m_material->SetUniformValue("TriPrismBlend", GL_TRUE);
+    m_material->SetUniformValue("TriPrismEnabled", GL_TRUE);
 }
 
 void RaymarchingApplication::InitializeRenderer()
@@ -175,9 +179,12 @@ void RaymarchingApplication::RenderGUI()
             ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("SphereSmoothness"), 0.1f);
 
             ImGui::Checkbox("Blend", &sphereBlend);
-
             if (sphereBlend) m_material->SetUniformValue("SphereBlend", GL_TRUE);
             else m_material->SetUniformValue("SphereBlend", GL_FALSE);
+
+            ImGui::Checkbox("Enabled", &sphereEnabled);
+            if (sphereEnabled) m_material->SetUniformValue("SphereEnabled", GL_TRUE);
+            else m_material->SetUniformValue("SphereEnabled", GL_FALSE);
 
 
             ImGui::DragFloat3("Center", &sphereCenter[0], 0.1f);
@@ -197,6 +204,10 @@ void RaymarchingApplication::RenderGUI()
             if (cylinderBlend) m_material->SetUniformValue("CylinderBlend", GL_TRUE);
             else m_material->SetUniformValue("CylinderBlend", GL_FALSE);
 
+            ImGui::Checkbox("Enabled", &cylinderEnabled);
+            if (cylinderEnabled) m_material->SetUniformValue("CylinderEnabled", GL_TRUE);
+            else m_material->SetUniformValue("CylinderEnabled", GL_FALSE);
+
             ImGui::DragFloat3("Translation", &cylinderTranslation[0], 0.1f);
             ImGui::DragFloat3("Rotation", &cylinderRotation[0], 0.1f);
             ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("CylinderRadius"), 1.0f);
@@ -212,6 +223,10 @@ void RaymarchingApplication::RenderGUI()
             ImGui::Checkbox("Blend", &boxBlend);
             if (boxBlend) m_material->SetUniformValue("BoxBlend", GL_TRUE);
             else m_material->SetUniformValue("BoxBlend", GL_FALSE);
+
+            ImGui::Checkbox("Enabled", &boxEnabled);
+            if (boxEnabled) m_material->SetUniformValue("BoxEnabled", GL_TRUE);
+            else m_material->SetUniformValue("BoxEnabled", GL_FALSE);
 
             ImGui::DragFloat3("Translation", &boxTranslation[0], 0.1f);
             ImGui::DragFloat3("Rotation", &boxRotation[0], 0.1f);
@@ -229,6 +244,10 @@ void RaymarchingApplication::RenderGUI()
             ImGui::Checkbox("Blend", &triPrismBlend);
             if (triPrismBlend) m_material->SetUniformValue("TriPrismBlend", GL_TRUE);
             else m_material->SetUniformValue("TriPrismBlend", GL_FALSE);
+
+            ImGui::Checkbox("Enabled", &triPrismEnabled);
+            if (triPrismEnabled) m_material->SetUniformValue("TriPrismEnabled", GL_TRUE);
+            else m_material->SetUniformValue("TriPrismEnabled", GL_FALSE);
 
             ImGui::DragFloat3("Translation", &triPrismTranslation[0], 0.1f);
             ImGui::DragFloat3("Rotation", &triPrismRotation[0], 0.1f);

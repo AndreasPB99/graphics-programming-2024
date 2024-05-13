@@ -64,5 +64,26 @@ private:
     bool triPrismBlend = true;
     bool triPrismEnabled = true;
 
+    glm::vec3 torusTranslation = glm::vec3(0, 3, -10);
+    glm::vec3 torusRotation = glm::vec3(0.0f);
+    bool torusBlend = true;
+    bool torusEnabled = true;
+
+    glm::vec3 verticalCapsuleTranslation = glm::vec3(-2, 3, -10);
+    glm::vec3 verticalCapsuleRotation = glm::vec3(0.0f);
+    bool verticalCapsuleBlend = true;
+    bool verticalCapsuleEnabled = true;
+
+    glm::vec3 octahedronTranslation = glm::vec3(-4, 3, -10);
+    glm::vec3 octahedronRotation = glm::vec3(0.0f);
+    bool octahedronBlend = true;
+    bool octahedronEnabled = true;
+
+    glm::vec3 pyramidTranslation = glm::vec3(2, 3, -10);
+    glm::vec3 pyramidRotation = glm::vec3(0.0f);
+    bool pyramidBlend = true;
+    bool pyramidEnabled = true;
+    bool pyramidBrokenBase = false;
+
     int combinationType = 0;
 };

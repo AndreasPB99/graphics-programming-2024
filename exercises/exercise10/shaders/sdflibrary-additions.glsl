@@ -8,19 +8,58 @@ float TriPrismSDF( vec3 p, vec2 h )
 }
 
 
-float SmoothSubtraction( float d1, float d2, float smoothness )
+float VerticalCapsuleSDF( vec3 p, float h, float r )
 {
-    float h = clamp( 0.5 - 0.5*(d2+d1)/smoothness, 0.0, 1.0 );
-    return mix( d2, -d1, h ) + smoothness*h*(1.0-h);
+  p.y -= clamp( p.y, 0.0, h );
+  return length( p ) - r;
+}
+
+
+float OctahedronSDF( vec3 p, float s )
+{
+  p = abs(p);
+  float m = p.x+p.y+p.z-s;
+  vec3 q;
+       if( 3.0*p.x < m ) q = p.xyz;
+  else if( 3.0*p.y < m ) q = p.yzx;
+  else if( 3.0*p.z < m ) q = p.zxy;
+  else return m*0.57735027;
+    
+  float k = clamp(0.5*(q.z-q.y+s),0.0,s); 
+  return length(vec3(q.x,q.y-s+k,q.z-k)); 
+}
+
+
+float PyramidSDF( vec3 p, float h, bool brokenBase )
+{
+ // This if statement is taken from a comment on shadertoy by ljs_harbin (https://www.shadertoy.com/view/Ws3SDl)
+ // It fixes the base of the pyramid
+ if (!brokenBase){
+    if (p.y <= 0.0)
+        return length(max(abs(p)-vec3(0.5,0.0,0.5),0.0));
+ }
+
+  float m2 = h*h + 0.25;
+    
+  p.xz = abs(p.xz);
+  p.xz = (p.z>p.x) ? p.zx : p.xz;
+  p.xz -= 0.5;
+
+  vec3 q = vec3( p.z, h*p.y - 0.5*p.x, h*p.x + 0.5*p.y);
+   
+  float s = max(-q.x,0.0);
+  float t = clamp( (q.y-0.5*p.z)/(m2+0.25), 0.0, 1.0 );
+    
+  float a = m2*(q.x+s)*(q.x+s) + q.y*q.y;
+  float b = m2*(q.x+0.5*t)*(q.x+0.5*t) + (q.y-m2*t)*(q.y-m2*t);
+    
+  float d2 = min(q.y,-q.x*m2-q.y*0.5) > 0.0 ? 0.0 : min(a,b);
+    
+  return sqrt( (d2+q.z*q.z)/m2 ) * sign(max(q.z,-p.y));
 }
 
 float SmoothIntersection( float d1, float d2, float smoothness )
 {
     float h = clamp( 0.5 - 0.5*(d2-d1)/smoothness, 0.0, 1.0 );
     return mix( d2, d1, h ) + smoothness*h*(1.0-h);
-}
-
-float SDFXor(float d1, float d2 )
-{
-    return max(min(d1,d2),-max(d1,d2));
 }

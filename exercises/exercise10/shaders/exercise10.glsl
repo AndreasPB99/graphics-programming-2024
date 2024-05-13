@@ -28,10 +28,42 @@ uniform vec2 TriPrismHeight = vec2(1, 1);
 uniform bool TriPrismBlend = true;
 uniform bool TriPrismEnabled = true;
 
+uniform vec3 TorusColor = vec3(1, 1, 1);
+uniform mat4 TorusMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
+uniform float TorusMRadius = 1.0f;
+uniform float TorusSRadius = 1.0f;
+uniform bool TorusBlend = true;
+uniform bool TorusEnabled = true;
+
+uniform vec3 VerticalCapsuleColor = vec3(1, 1, 1);
+uniform mat4 VerticalCapsuleMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
+uniform float VerticalCapsuleHeight = 1.0f;
+uniform float VerticalCapsuleRadius = 1.0f;
+uniform bool VerticalCapsuleBlend = true;
+uniform bool VerticalCapsuleEnabled = true;
+
+
+uniform vec3 OctahedronColor = vec3(1, 1, 1);
+uniform mat4 OctahedronMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
+uniform float OctahedronWidth = 1.0f;
+uniform bool OctahedronBlend = true;
+uniform bool OctahedronEnabled = true;
+
+uniform vec3 PyramidColor = vec3(1, 1, 1);
+uniform mat4 PyramidMatrix = mat4(1,0,0,0,   0,1,0,0,   0,0,1,0,   2,0,-10,1);
+uniform float PyramidHeight = 1.0f;
+uniform bool PyramidBlend = true;
+uniform bool PyramidEnabled = true;
+uniform bool PyramidBrokenBase = true;
+
 uniform float SphereSmoothness = 1.0f;
 uniform float CylinderSmoothness = 1.0f;
 uniform float BoxSmoothness = 1.0f;
 uniform float TriPrismSmoothness = 1.0f;
+uniform float TorusSmoothness = 1.0f;
+uniform float VerticalCapsuleSmoothness = 1.0f;
+uniform float OctahedronSmoothness = 1.0f;
+uniform float PyramidSmoothness = 1.0f;
 
 struct SDFHelper
 {
@@ -66,13 +98,25 @@ float GetDistance(vec3 p, inout Output o)
 	float dTriPrism = TriPrismSDF(TransformToLocalPoint(p, TriPrismMatrix), TriPrismHeight);
 	SDFHelper SDFTriPrism = SDFHelper(dTriPrism, TriPrismColor, TriPrismSmoothness, TriPrismBlend, TriPrismEnabled);
 
+	float dTorus = TorusSDF(TransformToLocalPoint(p, TorusMatrix), TorusMRadius, TorusSRadius);
+	SDFHelper SDFTorus = SDFHelper(dTorus, TorusColor, TorusSmoothness, TorusBlend, TorusEnabled);
+
+	float dVerticalCapsule = VerticalCapsuleSDF(TransformToLocalPoint(p, VerticalCapsuleMatrix), VerticalCapsuleHeight, VerticalCapsuleRadius);
+	SDFHelper SDFVerticalCapsule = SDFHelper(dVerticalCapsule, VerticalCapsuleColor, VerticalCapsuleSmoothness, VerticalCapsuleBlend, VerticalCapsuleEnabled);
+
+	float dOctahedron = OctahedronSDF(TransformToLocalPoint(p, OctahedronMatrix), OctahedronWidth);
+	SDFHelper SDFOctahedron = SDFHelper(dOctahedron, OctahedronColor, OctahedronSmoothness, OctahedronBlend, OctahedronEnabled);
+
+	float dPyramid = PyramidSDF(TransformToLocalPoint(p, PyramidMatrix), PyramidHeight, PyramidBrokenBase);
+	SDFHelper SDFPyramid = SDFHelper(dPyramid, PyramidColor, PyramidSmoothness, PyramidBlend, PyramidEnabled);
+
 	float blend = 0.0f;
 	int closest = 2;
 	int secondClosest = 1;
 
 	// length of array and max iteration for i must be the same
-	SDFHelper distances[4] = SDFHelper[](SDFSphere, SDFBox, SDFCylinder, SDFTriPrism);
-	for(int i=0;i<4;++i){
+	SDFHelper distances[8] = SDFHelper[](SDFSphere, SDFBox, SDFCylinder, SDFTriPrism, SDFTorus, SDFVerticalCapsule, SDFOctahedron, SDFPyramid);
+	for(int i=0;i<8;++i){
 		SDFHelper curr = distances[i];
 		SDFHelper currClosest = distances[closest];
 		SDFHelper currSecondClosest = distances[secondClosest];
@@ -114,8 +158,8 @@ float GetDistance(vec3 p, inout Output o)
 	SDFHelper b = distances[secondClosest];
 	float smoothness = (a.smoothness + b.smoothness) / 2;
 	float abd;
-	if (CombinationType == 0){ //Substraction
-		abd = Substraction(a.d, b.d);
+	if (CombinationType == 0){ //Union
+		abd = Union(a.d, b.d);
 	}
 	else if (CombinationType == 1){ //SmoothUnion
 		if (a.blend && b.blend)
@@ -131,10 +175,6 @@ float GetDistance(vec3 p, inout Output o)
 	else if (CombinationType == 3) { //SmoothIntersection
 		abd = SmoothIntersection(a.d, b.d, smoothness);
 	}
-	else if (CombinationType == 4) { //XOR
-		abd = SDFXor(a.d, b.d);
-	}
-
 	o.color = mix(a.color, b.color, blend);
 	return abd;
 

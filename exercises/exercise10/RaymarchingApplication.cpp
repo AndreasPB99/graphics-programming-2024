@@ -89,14 +89,14 @@ void RaymarchingApplication::InitializeMaterial()
     m_material = CreateRaymarchingMaterial("shaders/exercise10.glsl");
 
     // (todo) 10.X: Initialize material uniforms
-    m_material->SetUniformValue("SphereCenter", glm::vec3(-1, 0, -10));
+    m_material->SetUniformValue("SphereCenter", glm::vec3(0, 0, 0));
     m_material->SetUniformValue("SphereRadius", 1.0f);
     m_material->SetUniformValue("SphereColor", glm::vec3(0, 0, 1));
     m_material->SetUniformValue("SphereSmoothness", 1.0f);
     m_material->SetUniformValue("SphereBlend", GL_TRUE);
     m_material->SetUniformValue("SphereEnabled", GL_TRUE);
 
-    m_material->SetUniformValue("CylinderMatrix", glm::translate(glm::vec3(3, 2, -10)));
+    m_material->SetUniformValue("CylinderMatrix", glm::translate(glm::vec3(0, 0, 0)));
     m_material->SetUniformValue("CylinderRadius", 1.0f);
     m_material->SetUniformValue("CylinderHeight", 1.0f);
     m_material->SetUniformValue("CylinderColor", glm::vec3(0, 1, 0));
@@ -104,19 +104,50 @@ void RaymarchingApplication::InitializeMaterial()
     m_material->SetUniformValue("CylinderBlend", GL_TRUE);
     m_material->SetUniformValue("CylinderEnabled", GL_TRUE);
 
-    m_material->SetUniformValue("BoxMatrix", glm::translate(glm::vec3(4, 0, -10)));
+    m_material->SetUniformValue("BoxMatrix", glm::translate(glm::vec3(0, 0, 0)));
     m_material->SetUniformValue("BoxSize", glm::vec3(1, 1, 1));
     m_material->SetUniformValue("BoxColor", glm::vec3(1, 0, 0));
     m_material->SetUniformValue("BoxSmoothness", 1.0f);
     m_material->SetUniformValue("BoxBlend", GL_TRUE);
     m_material->SetUniformValue("BoxEnabled", GL_TRUE);
 
-    m_material->SetUniformValue("TriPrismMatrix", glm::translate(glm::vec3(6, 2, -10)));
+    m_material->SetUniformValue("TriPrismMatrix", glm::translate(glm::vec3(0, 0, 0)));
     m_material->SetUniformValue("TriPrismHeight", glm::vec2(0.8, 0.8));
     m_material->SetUniformValue("TriPrismColor", glm::vec3(0, 1, 1));
     m_material->SetUniformValue("TriPrismSmoothness", 1.0f);
     m_material->SetUniformValue("TriPrismBlend", GL_TRUE);
     m_material->SetUniformValue("TriPrismEnabled", GL_TRUE);
+
+    m_material->SetUniformValue("TorusMatrix", glm::translate(glm::vec3(0, 0, 0)));
+    m_material->SetUniformValue("TorusMRadius", 0.7f);
+    m_material->SetUniformValue("TorusSRadius", 0.7f);
+    m_material->SetUniformValue("TorusColor", glm::vec3(0.5f, 0.5f, 0.5f));
+    m_material->SetUniformValue("TorusSmoothness", 1.0f);
+    m_material->SetUniformValue("TorusBlend", GL_TRUE);
+    m_material->SetUniformValue("TorusEnabled", GL_TRUE);
+
+    m_material->SetUniformValue("VerticalCapsuleMatrix", glm::translate(glm::vec3(0, 0, 0)));
+    m_material->SetUniformValue("VerticalCapsuleRadius", 0.7f);
+    m_material->SetUniformValue("VerticalCapsuleHeight", 0.7f);
+    m_material->SetUniformValue("VerticalCapsuleColor", glm::vec3(0.2f, 0.9f, 0.5f));
+    m_material->SetUniformValue("VerticalCapsuleSmoothness", 1.0f);
+    m_material->SetUniformValue("VerticalCapsuleBlend", GL_TRUE);
+    m_material->SetUniformValue("VerticalCapsuleEnabled", GL_TRUE);
+
+    m_material->SetUniformValue("OctahedronMatrix", glm::translate(glm::vec3(0, 0, 0)));
+    m_material->SetUniformValue("OctahedronWidth", 0.7f);
+    m_material->SetUniformValue("OctahedronColor", glm::vec3(0.7f, 0.0f, 0.5f));
+    m_material->SetUniformValue("OctahedronSmoothness", 1.0f);
+    m_material->SetUniformValue("OctahedronBlend", GL_TRUE);
+    m_material->SetUniformValue("OctahedronEnabled", GL_TRUE);
+
+    m_material->SetUniformValue("PyramidMatrix", glm::translate(glm::vec3(0, 0, 0)));
+    m_material->SetUniformValue("PyramidHeight", 0.7f);
+    m_material->SetUniformValue("PyramidColor", glm::vec3(0.0f, 0.44f, 0.88f));
+    m_material->SetUniformValue("PyramidSmoothness", 1.0f);
+    m_material->SetUniformValue("PyramidBlend", GL_TRUE);
+    m_material->SetUniformValue("PyramidEnabled", GL_TRUE);
+    m_material->SetUniformValue("PyramidBrokenBase", GL_FALSE);
 
     m_material->SetUniformValue("CombinationType", combinationType);
 }
@@ -156,11 +187,17 @@ std::shared_ptr<Material> RaymarchingApplication::CreateRaymarchingMaterial(cons
 void RaymarchingApplication::SetViewMatrixRelation() {
 
     glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
+    //m_material->SetUniformValue("SphereCamera", glm::vec3(viewMatrix * glm::vec4(sphereCenter, 1.0f)));
     m_material->SetUniformValue("CylinderMatrix", viewMatrix * glm::translate(cylinderTranslation) * glm::eulerAngleXYZ(cylinderRotation.x, cylinderRotation.y, cylinderRotation.z));
     m_material->SetUniformValue("SphereCenter", glm::vec3(viewMatrix * glm::vec4(sphereCenter, 1.0f)));
     m_material->SetUniformValue("BoxMatrix", viewMatrix * glm::translate(boxTranslation) * glm::eulerAngleXYZ(boxRotation.x, boxRotation.y, boxRotation.z));
     m_material->SetUniformValue("TriPrismMatrix", viewMatrix * glm::translate(triPrismTranslation) * glm::eulerAngleXYZ(triPrismRotation.x, triPrismRotation.y, triPrismRotation.z));
     m_material->SetUniformValue("TriPrismHeight", triPrismHeight);
+    m_material->SetUniformValue("TorusMatrix", viewMatrix * glm::translate(torusTranslation) * glm::eulerAngleXYZ(torusRotation.x, torusRotation.y, torusRotation.z));
+    m_material->SetUniformValue("VerticalCapsuleMatrix", viewMatrix * glm::translate(verticalCapsuleTranslation) * glm::eulerAngleXYZ(verticalCapsuleRotation.x, verticalCapsuleRotation.y, verticalCapsuleRotation.z));
+    m_material->SetUniformValue("OctahedronMatrix", viewMatrix * glm::translate(octahedronTranslation) * glm::eulerAngleXYZ(octahedronRotation.x, octahedronRotation.y, octahedronRotation.z));
+    m_material->SetUniformValue("PyramidMatrix", viewMatrix * glm::translate(pyramidTranslation) * glm::eulerAngleXYZ(pyramidRotation.x, pyramidRotation.y, pyramidRotation.z));
+
 }
 
 void RaymarchingApplication::RenderGUI()
@@ -175,7 +212,7 @@ void RaymarchingApplication::RenderGUI()
         // (todo) 10.3: Get the camera view matrix and transform the sphere center and the box matrix
         glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
 
-        const char* items[] = { "Subtraction", "Union", "Intersection", "Smoothintersection" , "XOR"};
+        const char* items[] = { "Union", "SmoothUnion", "Intersection", "Smoothintersection"};
         ImGui::ListBox("CombinationType", &combinationType, items, IM_ARRAYSIZE(items), 5);
         m_material->SetUniformValue("CombinationType", combinationType);
 
@@ -261,6 +298,98 @@ void RaymarchingApplication::RenderGUI()
             ImGui::DragFloat2("Height", &triPrismHeight[0], 0.1f);
             m_material->SetUniformValue("TriPrismHeight", triPrismHeight);
             ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("TriPrismColor"));
+
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNodeEx("Torus", ImGuiTreeNodeFlags_OpenOnDoubleClick))
+        {
+
+            ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("TorusSmoothness"), 0.1f);
+
+            ImGui::Checkbox("Blend", &torusBlend);
+            if (torusBlend) m_material->SetUniformValue("TorusBlend", GL_TRUE);
+            else m_material->SetUniformValue("TorusBlend", GL_FALSE);
+
+            ImGui::Checkbox("Enabled", &triPrismEnabled);
+            if (triPrismEnabled) m_material->SetUniformValue("TorusEnabled", GL_TRUE);
+            else m_material->SetUniformValue("TorusEnabled", GL_FALSE);
+
+            ImGui::DragFloat3("Translation", &torusTranslation[0], 0.1f);
+            ImGui::DragFloat3("Rotation", &torusRotation[0], 0.1f);
+
+            ImGui::DragFloat("MainRadius", m_material->GetDataUniformPointer<float>("TorusMRadius"), 0.1f);
+            ImGui::DragFloat("SideRadius", m_material->GetDataUniformPointer<float>("TorusSRadius"), 0.1f);
+            ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("TorusColor"));
+
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNodeEx("VerticalCapsule", ImGuiTreeNodeFlags_OpenOnDoubleClick))
+        {
+
+            ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("VerticalCapsuleSmoothness"), 0.1f);
+
+            ImGui::Checkbox("Blend", &verticalCapsuleBlend);
+            if (verticalCapsuleBlend) m_material->SetUniformValue("VerticalCapsuleBlend", GL_TRUE);
+            else m_material->SetUniformValue("VerticalCapsuleBlend", GL_FALSE);
+
+            ImGui::Checkbox("Enabled", &verticalCapsuleEnabled);
+            if (verticalCapsuleEnabled) m_material->SetUniformValue("VerticalCapsuleEnabled", GL_TRUE);
+            else m_material->SetUniformValue("VerticalCapsuleEnabled", GL_FALSE);
+
+            ImGui::DragFloat3("Translation", &verticalCapsuleTranslation[0], 0.1f);
+            ImGui::DragFloat3("Rotation", &verticalCapsuleRotation[0], 0.1f);
+
+            ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("VerticalCapsuleRadius"), 0.1f);
+            ImGui::DragFloat("Height", m_material->GetDataUniformPointer<float>("VerticalCapsuleHeight"), 0.1f);
+            ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("VerticalCapsuleColor"));
+
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNodeEx("Octahedron", ImGuiTreeNodeFlags_OpenOnDoubleClick))
+        {
+
+            ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("OctahedronSmoothness"), 0.1f);
+
+            ImGui::Checkbox("Blend", &octahedronBlend);
+            if (octahedronBlend) m_material->SetUniformValue("OctahedronBlend", GL_TRUE);
+            else m_material->SetUniformValue("OctahedronBlend", GL_FALSE);
+
+            ImGui::Checkbox("Enabled", &octahedronEnabled);
+            if (octahedronEnabled) m_material->SetUniformValue("OctahedronEnabled", GL_TRUE);
+            else m_material->SetUniformValue("OctahedronEnabled", GL_FALSE);
+
+            ImGui::DragFloat3("Translation", &octahedronTranslation[0], 0.1f);
+            ImGui::DragFloat3("Rotation", &octahedronRotation[0], 0.1f);
+
+            ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("OctahedronWidth"), 0.1f);
+            ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("OctahedronColor"));
+
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNodeEx("Pyramid", ImGuiTreeNodeFlags_OpenOnDoubleClick))
+        {
+
+            ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("PyramidSmoothness"), 0.1f);
+
+            ImGui::Checkbox("Blend", &pyramidBlend);
+            if (pyramidBlend) m_material->SetUniformValue("PyramidBlend", GL_TRUE);
+            else m_material->SetUniformValue("PyramidBlend", GL_FALSE);
+
+            ImGui::Checkbox("Enabled", &pyramidEnabled);
+            if (pyramidEnabled) m_material->SetUniformValue("PyramidEnabled", GL_TRUE);
+            else m_material->SetUniformValue("PyramidEnabled", GL_FALSE);
+
+            ImGui::Checkbox("BrokenBase", &pyramidBrokenBase);
+            if (pyramidBrokenBase) m_material->SetUniformValue("PyramidBrokenBase", GL_TRUE);
+            else m_material->SetUniformValue("PyramidBrokenBase", GL_FALSE);
+
+            ImGui::DragFloat3("Translation", &pyramidTranslation[0], 0.1f);
+            ImGui::DragFloat3("Rotation", &pyramidRotation[0], 0.1f);
+
+            ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("PyramidHeight"), 0.1f);
+            ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("PyramidColor"));
 
             ImGui::TreePop();
         }

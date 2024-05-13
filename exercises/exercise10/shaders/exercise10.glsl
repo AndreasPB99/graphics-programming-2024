@@ -114,8 +114,8 @@ float GetDistance(vec3 p, inout Output o)
 	SDFHelper b = distances[secondClosest];
 	float smoothness = (a.smoothness + b.smoothness) / 2;
 	float abd;
-	if (CombinationType == 0){ //None
-		abd = a.d < b.d ? a.d : b.d;
+	if (CombinationType == 0){ //Substraction
+		abd = Substraction(a.d, b.d);
 	}
 	else if (CombinationType == 1){ //SmoothUnion
 		if (a.blend && b.blend)
@@ -125,10 +125,10 @@ float GetDistance(vec3 p, inout Output o)
 			abd = SmoothUnion(a.d, b.d, smoothness);
 		}
 	}
-	else if (CombinationType == 2) { //Substraction
-		abd = SmoothSubtraction(a.d, b.d, smoothness);
+	else if (CombinationType == 2) { //Intersection
+		abd = Intersection(a.d, b.d);
 	}
-	else if (CombinationType == 3) { //Intersection
+	else if (CombinationType == 3) { //SmoothIntersection
 		abd = SmoothIntersection(a.d, b.d, smoothness);
 	}
 	else if (CombinationType == 4) { //XOR

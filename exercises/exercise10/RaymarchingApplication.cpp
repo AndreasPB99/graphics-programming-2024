@@ -175,7 +175,7 @@ void RaymarchingApplication::RenderGUI()
         // (todo) 10.3: Get the camera view matrix and transform the sphere center and the box matrix
         glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
 
-        const char* items[] = { "None", "Union", "Subtraction", "Intersection", "XOR"};
+        const char* items[] = { "Subtraction", "Union", "Intersection", "Smoothintersection" , "XOR"};
         ImGui::ListBox("CombinationType", &combinationType, items, IM_ARRAYSIZE(items), 5);
         m_material->SetUniformValue("CombinationType", combinationType);
 

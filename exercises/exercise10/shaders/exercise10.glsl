@@ -2,6 +2,12 @@
 // Uniforms
 uniform int CombinationType = 0;
 
+uniform vec3 SphereCameraColor = vec3(0, 0, 1);
+uniform vec3 SphereCameraCenter = vec3(-2, 0, -10);
+uniform float SphereCameraRadius = 1.25f;
+uniform bool SphereCameraBlend = true;
+uniform bool SphereCameraEnabled = true;
+
 uniform vec3 SphereColor = vec3(0, 0, 1);
 uniform vec3 SphereCenter = vec3(-2, 0, -10);
 uniform float SphereRadius = 1.25f;
@@ -56,6 +62,7 @@ uniform bool PyramidBlend = true;
 uniform bool PyramidEnabled = true;
 uniform bool PyramidBrokenBase = true;
 
+uniform float SphereCameraSmoothness = 1.0f;
 uniform float SphereSmoothness = 1.0f;
 uniform float CylinderSmoothness = 1.0f;
 uniform float BoxSmoothness = 1.0f;
@@ -85,6 +92,9 @@ struct Output
 // Signed distance function
 float GetDistance(vec3 p, inout Output o)
 {
+	
+	float dSphereCamera = SphereSDF(TransformToLocalPoint(p, SphereCameraCenter), SphereCameraRadius);
+	SDFHelper SDFSphereCamera = SDFHelper(dSphereCamera, SphereCameraColor, SphereCameraSmoothness, SphereCameraBlend, SphereCameraEnabled);
 
 	float dSphere = SphereSDF(TransformToLocalPoint(p, SphereCenter), SphereRadius);
 	SDFHelper SDFSphere = SDFHelper(dSphere, SphereColor, SphereSmoothness, SphereBlend, SphereEnabled);
@@ -115,8 +125,8 @@ float GetDistance(vec3 p, inout Output o)
 	int secondClosest = 1;
 
 	// length of array and max iteration for i must be the same
-	SDFHelper distances[8] = SDFHelper[](SDFSphere, SDFBox, SDFCylinder, SDFTriPrism, SDFTorus, SDFVerticalCapsule, SDFOctahedron, SDFPyramid);
-	for(int i=0;i<8;++i){
+	SDFHelper distances[9] = SDFHelper[](SDFSphereCamera, SDFSphere, SDFBox, SDFCylinder, SDFTriPrism, SDFTorus, SDFVerticalCapsule, SDFOctahedron, SDFPyramid);
+	for(int i=0;i<9;++i){
 		SDFHelper curr = distances[i];
 		SDFHelper currClosest = distances[closest];
 		SDFHelper currSecondClosest = distances[secondClosest];

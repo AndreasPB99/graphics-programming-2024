@@ -88,7 +88,18 @@ void RaymarchingApplication::InitializeMaterial()
 {
     m_material = CreateRaymarchingMaterial("shaders/exercise10.glsl");
 
-    // (todo) 10.X: Initialize material uniforms
+    m_material->SetUniformValue("SphereCameraCenter", glm::vec3(0, 0, 0));
+    m_material->SetUniformValue("SphereCameraRadius", 1.0f);
+    m_material->SetUniformValue("SphereCameraColor", glm::vec3(0, 0, 1));
+    m_material->SetUniformValue("SphereCameraSmoothness", 1.0f);
+    m_material->SetUniformValue("SphereCameraBlend", GL_TRUE);
+    m_material->SetUniformValue("SphereCameraEnabled", GL_TRUE);
+
+    //Special case
+    glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
+    m_material->SetUniformValue("SphereCameraCenter", glm::vec3(viewMatrix * glm::vec4(sphereCameraCenter, 1.0f)));
+
+
     m_material->SetUniformValue("SphereCenter", glm::vec3(0, 0, 0));
     m_material->SetUniformValue("SphereRadius", 1.0f);
     m_material->SetUniformValue("SphereColor", glm::vec3(0, 0, 1));
@@ -187,7 +198,11 @@ std::shared_ptr<Material> RaymarchingApplication::CreateRaymarchingMaterial(cons
 void RaymarchingApplication::SetViewMatrixRelation() {
 
     glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
-    //m_material->SetUniformValue("SphereCamera", glm::vec3(viewMatrix * glm::vec4(sphereCenter, 1.0f)));
+
+
+    m_material->SetUniformValue("SphereCameraCenter", sphereCameraCenter);
+
+
     m_material->SetUniformValue("CylinderMatrix", viewMatrix * glm::translate(cylinderTranslation) * glm::eulerAngleXYZ(cylinderRotation.x, cylinderRotation.y, cylinderRotation.z));
     m_material->SetUniformValue("SphereCenter", glm::vec3(viewMatrix * glm::vec4(sphereCenter, 1.0f)));
     m_material->SetUniformValue("BoxMatrix", viewMatrix * glm::translate(boxTranslation) * glm::eulerAngleXYZ(boxRotation.x, boxRotation.y, boxRotation.z));
@@ -215,6 +230,27 @@ void RaymarchingApplication::RenderGUI()
         const char* items[] = { "Union", "SmoothUnion", "Intersection", "Smoothintersection"};
         ImGui::ListBox("CombinationType", &combinationType, items, IM_ARRAYSIZE(items), 5);
         m_material->SetUniformValue("CombinationType", combinationType);
+
+        if (ImGui::TreeNodeEx("Camera Sphere", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+
+            ImGui::DragFloat("Smoothness", m_material->GetDataUniformPointer<float>("SphereCameraSmoothness"), 0.1f);
+
+            ImGui::Checkbox("Blend", &sphereCameraBlend);
+            if (sphereCameraBlend) m_material->SetUniformValue("SphereCameraBlend", GL_TRUE);
+            else m_material->SetUniformValue("SphereCameraBlend", GL_FALSE);
+
+            ImGui::Checkbox("Enabled", &sphereCameraEnabled);
+            if (sphereCameraEnabled) m_material->SetUniformValue("SphereCameraEnabled", GL_TRUE);
+            else m_material->SetUniformValue("SphereCameraEnabled", GL_FALSE);
+
+            ImGui::DragFloat3("Center", &sphereCameraCenter[0], 0.1f);
+
+            ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("SphereCameraRadius"), 0.1f);
+            ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("SphereCameraColor"));
+            ImGui::TreePop();
+        }
+
 
         if (ImGui::TreeNodeEx("Sphere", ImGuiTreeNodeFlags_OpenOnDoubleClick))
         {

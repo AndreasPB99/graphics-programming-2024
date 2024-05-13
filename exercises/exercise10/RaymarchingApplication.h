@@ -41,9 +41,11 @@ private:
 
     // Materials
     std::shared_ptr<Material> m_material;
-
-
     
+    glm::vec3 sphereCameraCenter = glm::vec3(0, 0, -8);
+    bool sphereCameraBlend = true;
+    bool sphereCameraEnabled = true;
+
     glm::vec3 cylinderTranslation = glm::vec3(0, 1, -10);
     glm::vec3 cylinderRotation = glm::vec3(0.0f);
     bool cylinderBlend = true;

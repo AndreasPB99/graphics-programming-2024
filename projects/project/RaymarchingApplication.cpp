@@ -418,7 +418,7 @@ void RaymarchingApplication::RenderGUI()
             ImGui::DragFloat3("Translation", &pyramidTranslation[0], 0.1f);
             ImGui::DragFloat3("Rotation", &pyramidRotation[0], 0.1f);
 
-            ImGui::DragFloat("Radius", m_material->GetDataUniformPointer<float>("PyramidHeight"), 0.1f);
+            ImGui::DragFloat("Height", m_material->GetDataUniformPointer<float>("PyramidHeight"), 0.1f);
             ImGui::ColorEdit3("Color", m_material->GetDataUniformPointer<float>("PyramidColor"));
 
             ImGui::TreePop();

@@ -95,11 +95,6 @@ void RaymarchingApplication::InitializeMaterial()
     m_material->SetUniformValue("SphereCameraBlend", GL_TRUE);
     m_material->SetUniformValue("SphereCameraEnabled", GL_TRUE);
 
-    //Special case
-    glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
-    m_material->SetUniformValue("SphereCameraCenter", glm::vec3(viewMatrix * glm::vec4(sphereCameraCenter, 1.0f)));
-
-
     m_material->SetUniformValue("SphereCenter", glm::vec3(0, 0, 0));
     m_material->SetUniformValue("SphereRadius", 1.0f);
     m_material->SetUniformValue("SphereColor", glm::vec3(0, 0, 1));
@@ -224,7 +219,6 @@ void RaymarchingApplication::RenderGUI()
 
     if (auto window = m_imGui.UseWindow("Scene parameters"))
     {
-        // (todo) 10.3: Get the camera view matrix and transform the sphere center and the box matrix
         glm::mat4 viewMatrix = m_cameraController.GetCamera()->GetCamera()->GetViewMatrix();
 
         const char* items[] = { "Union", "SmoothUnion", "Intersection", "Smoothintersection"};

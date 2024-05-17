@@ -1,3 +1,3 @@
-## Graphics Programming Exercises
+## SDF project
 
-This repository contains the exercises of the Graphics Programming course from the IT University of Copenhagen. 
+Use CMake to build
